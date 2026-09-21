@@ -2,5 +2,6 @@ torch
 torchvision
 opencv-python-headless
 scikit-image
+matplotlib
 pillow
 numpy

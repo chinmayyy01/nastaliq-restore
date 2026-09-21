@@ -12,6 +12,7 @@ Full run (GPU):
 """
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -129,6 +130,8 @@ def main():
                         help="Use only the first N validation samples")
     parser.add_argument("--smoke", action="store_true",
                         help="Tiny CPU run (32 train / 16 val samples)")
+    parser.add_argument("--history-out", default=None,
+                        help="Write per-epoch metrics to this JSON file")
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -171,12 +174,20 @@ def main():
     criterion = nn.CTCLoss(blank=0, zero_infinity=True)
 
     best_cer = float("inf")
+    history = []
     for epoch in range(1, args.epochs + 1):
         start = time.time()
         train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device)
         val_loss, val_cer, preds, refs = evaluate(
             model, val_loader, criterion, device, idx_to_char)
         elapsed = time.time() - start
+
+        history.append({
+            "epoch": epoch,
+            "train_loss": train_loss,
+            "val_loss": val_loss,
+            "val_cer": val_cer,
+        })
 
         print(f"epoch {epoch:>3}/{args.epochs} | train_loss {train_loss:.4f} | "
               f"val_loss {val_loss:.4f} | val_CER {val_cer:.4f} | {elapsed:.1f}s")
@@ -187,6 +198,12 @@ def main():
             best_cer = val_cer
             save_checkpoint(model, optimizer, epoch, val_cer, args.checkpoint)
             print(f"    saved checkpoint -> {args.checkpoint} (best CER {best_cer:.4f})")
+
+    if args.history_out:
+        os.makedirs(os.path.dirname(os.path.abspath(args.history_out)), exist_ok=True)
+        with open(args.history_out, "w", encoding="utf-8") as f:
+            json.dump(history, f, indent=2)
+        print(f"history -> {args.history_out}")
 
     print(f"done. best val CER: {best_cer:.4f}")
 

@@ -1,0 +1,69 @@
+device: cpu
+vocab size (incl. blank): 60  train=320 val=80
+epoch   1/20 | train_loss 5.2619 | val_loss 3.2392 | val_CER 1.0000 | 8.2s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: 
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 1.0000)
+epoch   2/20 | train_loss 3.1990 | val_loss 3.2272 | val_CER 1.0000 | 7.9s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: 
+epoch   3/20 | train_loss 3.1775 | val_loss 3.1854 | val_CER 1.0000 | 8.1s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: 
+epoch   4/20 | train_loss 3.1137 | val_loss 3.0969 | val_CER 1.0000 | 7.6s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: 
+epoch   5/20 | train_loss 3.0322 | val_loss 3.0206 | val_CER 0.9753 | 7.6s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9753)
+epoch   6/20 | train_loss 2.9806 | val_loss 2.9914 | val_CER 0.9753 | 7.7s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch   7/20 | train_loss 2.9707 | val_loss 2.9800 | val_CER 0.9753 | 7.7s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch   8/20 | train_loss 2.9530 | val_loss 2.9636 | val_CER 0.9753 | 7.6s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch   9/20 | train_loss 2.9388 | val_loss 2.9497 | val_CER 0.9753 | 7.7s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  10/20 | train_loss 2.9238 | val_loss 2.9323 | val_CER 0.9753 | 7.7s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  11/20 | train_loss 2.9116 | val_loss 2.9199 | val_CER 0.9753 | 7.4s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  12/20 | train_loss 2.9028 | val_loss 2.9115 | val_CER 0.9753 | 7.7s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  13/20 | train_loss 2.8987 | val_loss 2.9149 | val_CER 0.9753 | 7.6s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  14/20 | train_loss 2.8882 | val_loss 2.8943 | val_CER 0.9753 | 7.8s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  15/20 | train_loss 2.8828 | val_loss 2.8919 | val_CER 0.9753 | 8.0s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  16/20 | train_loss 2.8837 | val_loss 2.8997 | val_CER 0.9741 | 8.0s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9741)
+epoch  17/20 | train_loss 2.8796 | val_loss 2.8946 | val_CER 0.9753 | 7.8s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: ۔
+epoch  18/20 | train_loss 2.8740 | val_loss 2.8833 | val_CER 0.9498 | 7.9s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: م۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9498)
+epoch  19/20 | train_loss 2.8681 | val_loss 2.8734 | val_CER 0.9466 | 7.9s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: م۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9466)
+epoch  20/20 | train_loss 2.8601 | val_loss 2.8754 | val_CER 0.9498 | 7.9s
+    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
+    pred: م۔
+history -> results/train_history.json
+done. best val CER: 0.9466
