@@ -1,0 +1,202 @@
+[
+  {
+    "id": 0,
+    "components": 46,
+    "strokes": 42,
+    "dots": 4,
+    "junctions": 10,
+    "endpoints": 85,
+    "strokes_with_dots": 4,
+    "mean_assoc_distance": 17.56504090415564
+  },
+  {
+    "id": 1,
+    "components": 34,
+    "strokes": 29,
+    "dots": 5,
+    "junctions": 11,
+    "endpoints": 67,
+    "strokes_with_dots": 5,
+    "mean_assoc_distance": 19.611636251189502
+  },
+  {
+    "id": 2,
+    "components": 24,
+    "strokes": 20,
+    "dots": 4,
+    "junctions": 40,
+    "endpoints": 42,
+    "strokes_with_dots": 4,
+    "mean_assoc_distance": 19.958358894683123
+  },
+  {
+    "id": 3,
+    "components": 41,
+    "strokes": 36,
+    "dots": 5,
+    "junctions": 18,
+    "endpoints": 85,
+    "strokes_with_dots": 5,
+    "mean_assoc_distance": 14.632482716439068
+  },
+  {
+    "id": 4,
+    "components": 23,
+    "strokes": 21,
+    "dots": 2,
+    "junctions": 17,
+    "endpoints": 47,
+    "strokes_with_dots": 2,
+    "mean_assoc_distance": 19.192380469524686
+  },
+  {
+    "id": 5,
+    "components": 29,
+    "strokes": 25,
+    "dots": 4,
+    "junctions": 15,
+    "endpoints": 58,
+    "strokes_with_dots": 4,
+    "mean_assoc_distance": 16.992927578492374
+  },
+  {
+    "id": 6,
+    "components": 43,
+    "strokes": 37,
+    "dots": 6,
+    "junctions": 50,
+    "endpoints": 88,
+    "strokes_with_dots": 6,
+    "mean_assoc_distance": 14.103976722991218
+  },
+  {
+    "id": 7,
+    "components": 36,
+    "strokes": 32,
+    "dots": 4,
+    "junctions": 20,
+    "endpoints": 63,
+    "strokes_with_dots": 4,
+    "mean_assoc_distance": 15.147784860883656
+  },
+  {
+    "id": 8,
+    "components": 59,
+    "strokes": 52,
+    "dots": 7,
+    "junctions": 51,
+    "endpoints": 111,
+    "strokes_with_dots": 7,
+    "mean_assoc_distance": 13.881272059994563
+  },
+  {
+    "id": 9,
+    "components": 58,
+    "strokes": 52,
+    "dots": 6,
+    "junctions": 24,
+    "endpoints": 113,
+    "strokes_with_dots": 6,
+    "mean_assoc_distance": 14.51902918630347
+  },
+  {
+    "id": 10,
+    "components": 44,
+    "strokes": 37,
+    "dots": 7,
+    "junctions": 37,
+    "endpoints": 92,
+    "strokes_with_dots": 7,
+    "mean_assoc_distance": 16.742949437114127
+  },
+  {
+    "id": 11,
+    "components": 40,
+    "strokes": 35,
+    "dots": 5,
+    "junctions": 12,
+    "endpoints": 81,
+    "strokes_with_dots": 5,
+    "mean_assoc_distance": 13.578098116137038
+  },
+  {
+    "id": 12,
+    "components": 42,
+    "strokes": 36,
+    "dots": 6,
+    "junctions": 29,
+    "endpoints": 86,
+    "strokes_with_dots": 6,
+    "mean_assoc_distance": 16.746592399245596
+  },
+  {
+    "id": 13,
+    "components": 22,
+    "strokes": 19,
+    "dots": 3,
+    "junctions": 19,
+    "endpoints": 47,
+    "strokes_with_dots": 3,
+    "mean_assoc_distance": 14.919019404751424
+  },
+  {
+    "id": 14,
+    "components": 33,
+    "strokes": 28,
+    "dots": 5,
+    "junctions": 35,
+    "endpoints": 65,
+    "strokes_with_dots": 5,
+    "mean_assoc_distance": 17.41353372002866
+  },
+  {
+    "id": 15,
+    "components": 22,
+    "strokes": 20,
+    "dots": 2,
+    "junctions": 23,
+    "endpoints": 45,
+    "strokes_with_dots": 2,
+    "mean_assoc_distance": 14.752304820070027
+  },
+  {
+    "id": 16,
+    "components": 32,
+    "strokes": 29,
+    "dots": 3,
+    "junctions": 26,
+    "endpoints": 59,
+    "strokes_with_dots": 3,
+    "mean_assoc_distance": 18.55554059509452
+  },
+  {
+    "id": 17,
+    "components": 21,
+    "strokes": 18,
+    "dots": 3,
+    "junctions": 16,
+    "endpoints": 41,
+    "strokes_with_dots": 3,
+    "mean_assoc_distance": 18.209314621520942
+  },
+  {
+    "id": 18,
+    "components": 14,
+    "strokes": 13,
+    "dots": 1,
+    "junctions": 4,
+    "endpoints": 27,
+    "strokes_with_dots": 1,
+    "mean_assoc_distance": 17.660423619207727
+  },
+  {
+    "id": 19,
+    "components": 23,
+    "strokes": 21,
+    "dots": 2,
+    "junctions": 32,
+    "endpoints": 42,
+    "strokes_with_dots": 2,
+    "mean_assoc_distance": 18.006983950808063
+  }
+]
