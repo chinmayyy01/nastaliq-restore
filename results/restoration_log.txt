@@ -1,0 +1,43 @@
+device: mps
+train=2120 val=530
+epoch   1/20 | train 0.5776 | val 0.4988 | PSNR 7.29 | SSIM 0.6791 | 87.9s
+    saved -> checkpoints/restoration_best.pt (best PSNR 7.29)
+epoch   2/20 | train 0.4658 | val 0.4405 | PSNR 8.17 | SSIM 0.6454 | 100.4s
+    saved -> checkpoints/restoration_best.pt (best PSNR 8.17)
+epoch   3/20 | train 0.4241 | val 0.4052 | PSNR 8.95 | SSIM 0.6918 | 96.5s
+    saved -> checkpoints/restoration_best.pt (best PSNR 8.95)
+epoch   4/20 | train 0.3922 | val 0.3753 | PSNR 9.55 | SSIM 0.7223 | 93.1s
+    saved -> checkpoints/restoration_best.pt (best PSNR 9.55)
+epoch   5/20 | train 0.3654 | val 0.3506 | PSNR 10.05 | SSIM 0.7357 | 105.6s
+    saved -> checkpoints/restoration_best.pt (best PSNR 10.05)
+epoch   6/20 | train 0.3411 | val 0.3358 | PSNR 10.40 | SSIM 0.7534 | 105.9s
+    saved -> checkpoints/restoration_best.pt (best PSNR 10.40)
+epoch   7/20 | train 0.3183 | val 0.3034 | PSNR 11.30 | SSIM 0.7904 | 99.3s
+    saved -> checkpoints/restoration_best.pt (best PSNR 11.30)
+epoch   8/20 | train 0.2978 | val 0.2833 | PSNR 11.94 | SSIM 0.8060 | 91.4s
+    saved -> checkpoints/restoration_best.pt (best PSNR 11.94)
+epoch   9/20 | train 0.2785 | val 0.2767 | PSNR 11.85 | SSIM 0.8008 | 89.3s
+epoch  10/20 | train 0.2607 | val 0.2493 | PSNR 12.69 | SSIM 0.8326 | 86.4s
+    saved -> checkpoints/restoration_best.pt (best PSNR 12.69)
+epoch  11/20 | train 0.2444 | val 0.2448 | PSNR 12.91 | SSIM 0.8206 | 85.8s
+    saved -> checkpoints/restoration_best.pt (best PSNR 12.91)
+epoch  12/20 | train 0.2270 | val 0.2306 | PSNR 13.20 | SSIM 0.8202 | 88.5s
+    saved -> checkpoints/restoration_best.pt (best PSNR 13.20)
+epoch  13/20 | train 0.2117 | val 0.2081 | PSNR 14.20 | SSIM 0.8511 | 88.9s
+    saved -> checkpoints/restoration_best.pt (best PSNR 14.20)
+epoch  14/20 | train 0.1967 | val 0.1934 | PSNR 14.70 | SSIM 0.8432 | 99.6s
+    saved -> checkpoints/restoration_best.pt (best PSNR 14.70)
+epoch  15/20 | train 0.1816 | val 0.1847 | PSNR 15.35 | SSIM 0.8083 | 104.2s
+    saved -> checkpoints/restoration_best.pt (best PSNR 15.35)
+epoch  16/20 | train 0.1586 | val 0.1491 | PSNR 18.21 | SSIM 0.8232 | 93.2s
+    saved -> checkpoints/restoration_best.pt (best PSNR 18.21)
+epoch  17/20 | train 0.1276 | val 0.1287 | PSNR 20.03 | SSIM 0.8728 | 90.1s
+    saved -> checkpoints/restoration_best.pt (best PSNR 20.03)
+epoch  18/20 | train 0.1133 | val 0.1156 | PSNR 21.54 | SSIM 0.9330 | 106.8s
+    saved -> checkpoints/restoration_best.pt (best PSNR 21.54)
+epoch  19/20 | train 0.1022 | val 0.1083 | PSNR 22.33 | SSIM 0.9420 | 106.2s
+    saved -> checkpoints/restoration_best.pt (best PSNR 22.33)
+epoch  20/20 | train 0.0938 | val 0.0970 | PSNR 23.62 | SSIM 0.9542 | 105.7s
+    saved -> checkpoints/restoration_best.pt (best PSNR 23.62)
+history -> results/restoration_history.json
+done. best val PSNR: 23.62
