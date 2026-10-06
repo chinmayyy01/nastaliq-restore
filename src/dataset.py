@@ -7,6 +7,7 @@ teaches the model "given a clean Nastaliq line, what does it say?".
 
 import json
 import os
+import random
 import sys
 
 import numpy as np
@@ -48,6 +49,29 @@ def _resolve(path: str) -> str:
     return os.path.join(_REPO_ROOT, path)
 
 
+def augment_line(img: Image.Image) -> Image.Image:
+    """Mild photometric + geometric jitter to fight overfitting.
+
+    The synthetic renderings are all the same font at the same size, so the
+    recogniser memorises the exact pixel patterns. Random rotation, width
+    scaling, contrast and noise force it to key on the actual strokes.
+    """
+    angle = random.uniform(-1.5, 1.5)
+    if abs(angle) > 0.1:
+        img = img.rotate(angle, resample=Image.BILINEAR, expand=False,
+                         fillcolor=255)
+
+    scale = random.uniform(0.92, 1.08)
+    new_w = max(4, int(round(img.width * scale)))
+    img = img.resize((new_w, img.height), Image.BILINEAR)
+
+    arr = np.asarray(img, dtype=np.float32)
+    arr = arr * random.uniform(0.85, 1.15) + random.uniform(-12, 12)
+    if random.random() < 0.5:
+        arr = arr + np.random.normal(0, random.uniform(2, 8), arr.shape)
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+
+
 class OCRDataset(Dataset):
     """Loads (clean image, text) pairs from a manifest file.
 
@@ -57,10 +81,11 @@ class OCRDataset(Dataset):
     """
 
     def __init__(self, manifest_path: str, vocab: dict,
-                 img_height: int = IMG_HEIGHT):
+                 img_height: int = IMG_HEIGHT, augment: bool = False):
         self.manifest = load_manifest(manifest_path)
         self.vocab = vocab
         self.img_height = img_height
+        self.augment = augment
 
     def __len__(self) -> int:
         return len(self.manifest)
@@ -72,6 +97,8 @@ class OCRDataset(Dataset):
         w, h = img.size
         new_w = max(1, int(round(w * self.img_height / h)))
         img = img.resize((new_w, self.img_height), Image.BILINEAR)
+        if self.augment:
+            img = augment_line(img)
 
         arr = np.asarray(img, dtype=np.float32) / 255.0
         image = torch.from_numpy(arr).unsqueeze(0)  # [1, H, W]
@@ -81,6 +108,11 @@ class OCRDataset(Dataset):
         return image, label, text
 
 
+# Each ConvBlock pools the width by 2; the first three blocks pool the width,
+# the last keeps it, so the sequence axis is downsampled by 8 overall.
+WIDTH_DOWNSAMPLE = 8
+
+
 def collate_fn(batch):
     """Pad variable-width images to the widest in the batch.
 
@@ -88,11 +120,13 @@ def collate_fn(batch):
         padded_images      : [N, 1, H, W_max]
         flat_labels        : 1-D concatenation of all label tensors
         label_lengths      : [N] target lengths
+        input_lengths      : [N] valid timesteps per sample (excludes padding)
         raw_texts          : list[str] ground-truth strings
     """
     images, labels, texts = zip(*batch)
 
-    max_w = max(img.shape[2] for img in images)
+    widths = [img.shape[2] for img in images]
+    max_w = max(widths)
     padded = []
     for img in images:
         pad = max_w - img.shape[2]
@@ -103,9 +137,11 @@ def collate_fn(batch):
     images = torch.stack(padded, dim=0)
 
     label_lengths = torch.tensor([len(l) for l in labels], dtype=torch.long)
+    input_lengths = torch.tensor(
+        [max(1, w // WIDTH_DOWNSAMPLE) for w in widths], dtype=torch.long)
     flat_labels = (torch.cat(labels) if labels
                    else torch.empty(0, dtype=torch.long))
-    return images, flat_labels, label_lengths, list(texts)
+    return images, flat_labels, label_lengths, input_lengths, list(texts)
 
 
 if __name__ == "__main__":
@@ -118,13 +154,15 @@ if __name__ == "__main__":
     print(f"dataset length: {len(ds)}")
 
     loader = torch.utils.data.DataLoader(ds, batch_size=4, collate_fn=collate_fn)
-    images, labels, label_lengths, texts = next(iter(loader))
+    images, labels, label_lengths, input_lengths, texts = next(iter(loader))
     print(f"images:        {tuple(images.shape)}  (N, C, H, W)")
     print(f"flat_labels:   {tuple(labels.shape)}  sum(len)={int(label_lengths.sum())}")
     print(f"label_lengths: {label_lengths.tolist()}")
+    print(f"input_lengths: {input_lengths.tolist()}")
     print(f"raw_texts:     {texts}")
     assert images.dim() == 4 and images.shape[1] == 1
     assert images.shape[2] == IMG_HEIGHT
     assert labels.numel() == int(label_lengths.sum())
     assert len(texts) == images.shape[0]
+    assert len(input_lengths) == images.shape[0]
     print("dataset sanity check OK")

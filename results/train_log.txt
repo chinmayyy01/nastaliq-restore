@@ -1,69 +1,177 @@
-device: cpu
-vocab size (incl. blank): 60  train=320 val=80
-epoch   1/20 | train_loss 5.2619 | val_loss 3.2392 | val_CER 1.0000 | 8.2s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: 
-    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 1.0000)
-epoch   2/20 | train_loss 3.1990 | val_loss 3.2272 | val_CER 1.0000 | 7.9s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: 
-epoch   3/20 | train_loss 3.1775 | val_loss 3.1854 | val_CER 1.0000 | 8.1s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: 
-epoch   4/20 | train_loss 3.1137 | val_loss 3.0969 | val_CER 1.0000 | 7.6s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: 
-epoch   5/20 | train_loss 3.0322 | val_loss 3.0206 | val_CER 0.9753 | 7.6s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9753)
-epoch   6/20 | train_loss 2.9806 | val_loss 2.9914 | val_CER 0.9753 | 7.7s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch   7/20 | train_loss 2.9707 | val_loss 2.9800 | val_CER 0.9753 | 7.7s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch   8/20 | train_loss 2.9530 | val_loss 2.9636 | val_CER 0.9753 | 7.6s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch   9/20 | train_loss 2.9388 | val_loss 2.9497 | val_CER 0.9753 | 7.7s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  10/20 | train_loss 2.9238 | val_loss 2.9323 | val_CER 0.9753 | 7.7s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  11/20 | train_loss 2.9116 | val_loss 2.9199 | val_CER 0.9753 | 7.4s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  12/20 | train_loss 2.9028 | val_loss 2.9115 | val_CER 0.9753 | 7.7s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  13/20 | train_loss 2.8987 | val_loss 2.9149 | val_CER 0.9753 | 7.6s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  14/20 | train_loss 2.8882 | val_loss 2.8943 | val_CER 0.9753 | 7.8s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  15/20 | train_loss 2.8828 | val_loss 2.8919 | val_CER 0.9753 | 8.0s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  16/20 | train_loss 2.8837 | val_loss 2.8997 | val_CER 0.9741 | 8.0s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9741)
-epoch  17/20 | train_loss 2.8796 | val_loss 2.8946 | val_CER 0.9753 | 7.8s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: ۔
-epoch  18/20 | train_loss 2.8740 | val_loss 2.8833 | val_CER 0.9498 | 7.9s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: م۔
-    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9498)
-epoch  19/20 | train_loss 2.8681 | val_loss 2.8734 | val_CER 0.9466 | 7.9s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: م۔
-    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9466)
-epoch  20/20 | train_loss 2.8601 | val_loss 2.8754 | val_CER 0.9498 | 7.9s
-    ref : مجھے لگ رہا تھا کہ ایسے کچھ ہونے والا تھا۔
-    pred: م۔
+device: mps
+vocab size (incl. blank): 88  train=2120 val=530
+epoch   1/50 | train_loss 3.1968 | val_loss 2.8970 | val_CER 0.9327 | lr 5.58e-04 | 36.9s
+    ref : قصور اس کا ہی ہے۔
+    pred: مے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.9327)
+epoch   2/50 | train_loss 2.8573 | val_loss 2.8161 | val_CER 0.8648 | lr 1.23e-03 | 24.6s
+    ref : قصور اس کا ہی ہے۔
+    pred: می ہے۔؟۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.8648)
+epoch   3/50 | train_loss 2.7288 | val_loss 2.7505 | val_CER 0.7302 | lr 2.07e-03 | 24.6s
+    ref : قصور اس کا ہی ہے۔
+    pred: می   ک ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.7302)
+epoch   4/50 | train_loss 2.6575 | val_loss 2.6447 | val_CER 0.6834 | lr 2.74e-03 | 23.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: میں ک  ک ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6834)
+epoch   5/50 | train_loss 2.6038 | val_loss 2.5518 | val_CER 0.6908 | lr 3.00e-03 | 23.2s
+    ref : قصور اس کا ہی ہے۔
+    pred: می ک ک ک ہے۔۔
+epoch   6/50 | train_loss 2.5470 | val_loss 2.5210 | val_CER 0.6727 | lr 3.00e-03 | 22.3s
+    ref : قصور اس کا ہی ہے۔
+    pred: ای ک ک ک ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6727)
+epoch   7/50 | train_loss 2.5289 | val_loss 2.5672 | val_CER 0.6834 | lr 2.99e-03 | 22.8s
+    ref : قصور اس کا ہی ہے۔
+    pred: می ک ا ہے۔
+epoch   8/50 | train_loss 2.5857 | val_loss 2.5448 | val_CER 0.6783 | lr 2.97e-03 | 22.2s
+    ref : قصور اس کا ہی ہے۔
+    pred: می ک ے۔
+epoch   9/50 | train_loss 2.5282 | val_loss 2.4953 | val_CER 0.6682 | lr 2.94e-03 | 22.8s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ ک ک کا ہے۔۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6682)
+epoch  10/50 | train_loss 2.5204 | val_loss 2.5061 | val_CER 0.6486 | lr 2.91e-03 | 45.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ ک کی کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6486)
+epoch  11/50 | train_loss 2.4968 | val_loss 2.5036 | val_CER 0.6561 | lr 2.87e-03 | 48.2s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ کر ہا ہے۔
+epoch  12/50 | train_loss 2.4856 | val_loss 2.4806 | val_CER 0.6498 | lr 2.82e-03 | 46.3s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ ک ک ک ہے۔
+epoch  13/50 | train_loss 2.4732 | val_loss 2.4622 | val_CER 0.6326 | lr 2.77e-03 | 46.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ ی ی کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6326)
+epoch  14/50 | train_loss 2.4641 | val_loss 2.4559 | val_CER 0.6253 | lr 2.71e-03 | 45.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ  ککا ہے۔۔۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6253)
+epoch  15/50 | train_loss 2.4462 | val_loss 2.4539 | val_CER 0.6286 | lr 2.65e-03 | 45.9s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ  کی ہے۔
+epoch  16/50 | train_loss 2.4226 | val_loss 2.4145 | val_CER 0.6095 | lr 2.58e-03 | 46.1s
+    ref : قصور اس کا ہی ہے۔
+    pred: مہ  ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6095)
+epoch  17/50 | train_loss 2.3988 | val_loss 2.3700 | val_CER 0.6006 | lr 2.50e-03 | 46.1s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.6006)
+epoch  18/50 | train_loss 2.3944 | val_loss 2.3698 | val_CER 0.6054 | lr 2.42e-03 | 46.4s
+    ref : قصور اس کا ہی ہے۔
+    pred: اہ ک ک کی ہے۔
+epoch  19/50 | train_loss 2.4041 | val_loss 2.4027 | val_CER 0.6112 | lr 2.34e-03 | 46.1s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک ککا ہے۔
+epoch  20/50 | train_loss 2.3925 | val_loss 2.4538 | val_CER 0.6208 | lr 2.25e-03 | 47.2s
+    ref : قصور اس کا ہی ہے۔
+    pred: اہ کی کہی ہہے۔
+epoch  21/50 | train_loss 2.3853 | val_loss 2.3822 | val_CER 0.6155 | lr 2.16e-03 | 47.9s
+    ref : قصور اس کا ہی ہے۔
+    pred: اہ  کی کی ہے۔
+epoch  22/50 | train_loss 2.3561 | val_loss 2.3605 | val_CER 0.6007 | lr 2.06e-03 | 61.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک ک کتا ہے۔
+epoch  23/50 | train_loss 2.3310 | val_loss 2.3531 | val_CER 0.5903 | lr 1.96e-03 | 20717.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہی ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5903)
+epoch  24/50 | train_loss 2.3160 | val_loss 2.3466 | val_CER 0.5992 | lr 1.86e-03 | 395.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک ک کتا ہے۔
+epoch  25/50 | train_loss 2.3121 | val_loss 2.3263 | val_CER 0.5870 | lr 1.76e-03 | 177.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: اہ  کی کہا ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5870)
+epoch  26/50 | train_loss 2.2913 | val_loss 2.3111 | val_CER 0.5852 | lr 1.66e-03 | 855.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: اہ کی کی کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5852)
+epoch  27/50 | train_loss 2.2735 | val_loss 2.3105 | val_CER 0.5873 | lr 1.55e-03 | 1511.5s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کا ک کتا ہے۔
+epoch  28/50 | train_loss 2.2619 | val_loss 2.3025 | val_CER 0.5856 | lr 1.45e-03 | 976.4s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ن ک کتا ہے۔
+epoch  29/50 | train_loss 2.2343 | val_loss 2.2857 | val_CER 0.5769 | lr 1.34e-03 | 1414.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: یہ کی ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5769)
+epoch  30/50 | train_loss 2.2145 | val_loss 2.2846 | val_CER 0.5826 | lr 1.24e-03 | 137.4s
+    ref : قصور اس کا ہی ہے۔
+    pred: اہ کی ک کی ہے۔
+epoch  31/50 | train_loss 2.1994 | val_loss 2.2746 | val_CER 0.5791 | lr 1.14e-03 | 428.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: یہ کی ککی ہے۔
+epoch  32/50 | train_loss 2.1768 | val_loss 2.2550 | val_CER 0.5755 | lr 1.04e-03 | 163.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: یہ کا ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5755)
+epoch  33/50 | train_loss 2.1565 | val_loss 2.2530 | val_CER 0.5755 | lr 9.40e-04 | 86.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: یہ کی ک کی ہے۔
+epoch  34/50 | train_loss 2.1336 | val_loss 2.2484 | val_CER 0.5663 | lr 8.44e-04 | 52.1s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی  کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5663)
+epoch  35/50 | train_loss 2.1113 | val_loss 2.2394 | val_CER 0.5658 | lr 7.52e-04 | 393.4s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5658)
+epoch  36/50 | train_loss 2.0912 | val_loss 2.2345 | val_CER 0.5642 | lr 6.63e-04 | 61.4s
+    ref : قصور اس کا ہی ہے۔
+    pred: یہ کی ک کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5642)
+epoch  37/50 | train_loss 2.0686 | val_loss 2.2285 | val_CER 0.5667 | lr 5.79e-04 | 45.6s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی ک کی ہے۔
+epoch  38/50 | train_loss 2.0505 | val_loss 2.2258 | val_CER 0.5654 | lr 4.99e-04 | 60.8s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک ن کی ہے۔
+epoch  39/50 | train_loss 2.0307 | val_loss 2.2211 | val_CER 0.5638 | lr 4.23e-04 | 175.4s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5638)
+epoch  40/50 | train_loss 2.0103 | val_loss 2.2242 | val_CER 0.5610 | lr 3.53e-04 | 48.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نو کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5610)
+epoch  41/50 | train_loss 1.9902 | val_loss 2.2222 | val_CER 0.5617 | lr 2.89e-04 | 51.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی ا کی ہے۔
+epoch  42/50 | train_loss 1.9743 | val_loss 2.2212 | val_CER 0.5617 | lr 2.30e-04 | 178.1s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
+epoch  43/50 | train_loss 1.9582 | val_loss 2.2228 | val_CER 0.5622 | lr 1.78e-04 | 58.6s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
+epoch  44/50 | train_loss 1.9452 | val_loss 2.2211 | val_CER 0.5599 | lr 1.32e-04 | 46.3s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک نا کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5599)
+epoch  45/50 | train_loss 1.9342 | val_loss 2.2218 | val_CER 0.5605 | lr 9.32e-05 | 128.9s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک نا کی ہے۔
+epoch  46/50 | train_loss 1.9284 | val_loss 2.2218 | val_CER 0.5577 | lr 6.09e-05 | 47.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ ک نا کی ہے۔
+    saved checkpoint -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (best CER 0.5577)
+epoch  47/50 | train_loss 1.9229 | val_loss 2.2223 | val_CER 0.5595 | lr 3.57e-05 | 51.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
+epoch  48/50 | train_loss 1.9191 | val_loss 2.2221 | val_CER 0.5599 | lr 1.75e-05 | 46.5s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
+epoch  49/50 | train_loss 1.9161 | val_loss 2.2219 | val_CER 0.5581 | lr 6.62e-06 | 47.0s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
+epoch  50/50 | train_loss 1.9139 | val_loss 2.2221 | val_CER 0.5580 | lr 3.00e-06 | 51.7s
+    ref : قصور اس کا ہی ہے۔
+    pred: وہ کی نا کی ہے۔
 history -> results/train_history.json
-done. best val CER: 0.9466
+done. best val CER: 0.5577

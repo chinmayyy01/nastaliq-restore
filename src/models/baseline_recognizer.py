@@ -6,11 +6,12 @@ compares against):
     input  [N, 1, 64, W]
       -> 4 conv blocks: 32 -> 64 -> 128 -> 256 channels
          (BatchNorm + ReLU + MaxPool each)
-         blocks 1-2 pool (2, 2); blocks 3-4 pool (2, 1) so horizontal
-         resolution is preserved -- width becomes the sequence axis
+         blocks 1-3 pool (2, 2); block 4 pools (2, 1), so the width
+         (sequence) axis is downsampled 8x and height 16x
       -> collapse the remaining height into the channel dimension
-         [N, 256, 4, W'] -> [T=W', N, 1024]
-      -> 2-layer bidirectional LSTM (hidden 128)
+         [N, 256, 4, W'] -> [N, W', 1024]
+      -> Linear projection + LayerNorm + ReLU -> [T=W', N, 256]
+      -> 2-layer bidirectional LSTM (hidden 256)
       -> Linear -> vocab_size
       -> log_softmax
     output [T, N, vocab_size]   (the layout CTC expects)
@@ -44,27 +45,37 @@ class ConvBlock(nn.Module):
 
 
 class BaselineRecognizer(nn.Module):
-    def __init__(self, vocab_size: int, hidden_size: int = 128,
-                 lstm_layers: int = 2, img_height: int = 64):
+    def __init__(self, vocab_size: int, hidden_size: int = 256,
+                 lstm_layers: int = 2, img_height: int = 64,
+                 proj_size: int = 256, dropout: float = 0.1):
         super().__init__()
         self.vocab_size = vocab_size
         self.img_height = img_height
 
-        # 4x height downsampling (all blocks) and 2x width downsampling
-        # (only blocks 1-2), so the collapsed feature height is 4 at 64px.
+        # 4x height downsampling (all blocks) and 8x width downsampling
+        # (blocks 1-3) so the sequence axis is ~2x the character count --
+        # CTC alignment on long lines collapses when T is much larger.
         self.cnn = nn.Sequential(
             ConvBlock(1, 32, pool=(2, 2)),
             ConvBlock(32, 64, pool=(2, 2)),
-            ConvBlock(64, 128, pool=(2, 1)),
+            ConvBlock(64, 128, pool=(2, 2)),
             ConvBlock(128, 256, pool=(2, 1)),
         )
         self.feature_height = img_height // 16
+        # Project the collapsed CNN features down before the recurrent stack:
+        # feeding raw 256*H' vectors straight into the LSTM optimises poorly.
+        # LayerNorm keeps the per-timestep scale healthy -- without it the CNN
+        # output is near-constant along the width and the LSTM saturates.
+        self.proj = nn.Linear(256 * self.feature_height, proj_size)
+        self.norm = nn.LayerNorm(proj_size)
+        self.dropout = nn.Dropout(dropout)
         self.lstm = nn.LSTM(
-            input_size=256 * self.feature_height,
+            input_size=proj_size,
             hidden_size=hidden_size,
             num_layers=lstm_layers,
             bidirectional=True,
             batch_first=False,
+            dropout=dropout if lstm_layers > 1 else 0.0,
         )
         self.fc = nn.Linear(hidden_size * 2, vocab_size)
 
@@ -73,7 +84,8 @@ class BaselineRecognizer(nn.Module):
         f = self.cnn(x)                       # [N, 256, H', W']
         n, c, h, w = f.shape
         f = f.permute(0, 3, 1, 2).contiguous().view(n, w, c * h)
-        f = f.permute(1, 0, 2)                # [T=w, N, c*h]
+        f = self.dropout(torch.relu(self.norm(self.proj(f))))  # [N, T=w, proj_size]
+        f = f.permute(1, 0, 2)                # [T=w, N, proj_size]
         out, _ = self.lstm(f)                 # [T, N, 2*hidden]
         logits = self.fc(out)                 # [T, N, vocab]
         return logits.log_softmax(dim=2)
@@ -114,7 +126,7 @@ if __name__ == "__main__":
 
     ds = OCRDataset(manifest_path, vocab)
     loader = torch.utils.data.DataLoader(ds, batch_size=4, collate_fn=collate_fn)
-    images, labels, label_lengths, texts = next(iter(loader))
+    images, labels, label_lengths, input_lengths, texts = next(iter(loader))
 
     model = BaselineRecognizer(vocab_size=len(vocab))
     log_probs = model(images)
@@ -124,7 +136,6 @@ if __name__ == "__main__":
     assert c == len(vocab)
     assert n == images.shape[0]
 
-    input_lengths = torch.full((n,), t, dtype=torch.long)
     criterion = nn.CTCLoss(blank=0, zero_infinity=True)
     loss = criterion(log_probs, labels, input_lengths, label_lengths)
     print(f"CTC loss:  {loss.item():.4f}")

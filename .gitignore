@@ -224,3 +224,8 @@ data/
 checkpoints/
 .DS_Store
 .ipynb_checkpoints/
+
+# Transient training-run logs (the canonical run stays as
+# results/train_log.txt + results/train_history.json)
+results/train_log_*.txt
+results/train_history_*.json

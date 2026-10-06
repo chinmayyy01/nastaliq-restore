@@ -59,25 +59,29 @@ def _idx_to_char(vocab: dict) -> dict:
     return {idx: ch for ch, idx in vocab.items() if ch != "<blank>"}
 
 
-def train_one_epoch(model, loader, optimizer, criterion, device) -> float:
+def train_one_epoch(model, loader, optimizer, criterion, device, scheduler=None,
+                    grad_clip=5.0) -> float:
     model.train()
     total_loss = 0.0
     total_items = 0
-    for images, labels, label_lengths, _ in loader:
+    for images, labels, label_lengths, input_lengths, _ in loader:
         images = images.to(device)
         labels = labels.to(device)
         label_lengths = label_lengths.to(device)
+        input_lengths = input_lengths.to(device)
 
         log_probs = model(images)                 # [T, N, C]
-        t, n, _ = log_probs.shape
-        input_lengths = torch.full((n,), t, dtype=torch.long, device=device)
-
         loss = criterion(log_probs, labels, input_lengths, label_lengths)
 
         optimizer.zero_grad()
         loss.backward()
+        if grad_clip:
+            nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
         optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
 
+        n = images.shape[0]
         total_loss += loss.item() * n
         total_items += n
     return total_loss / total_items if total_items else 0.0
@@ -90,16 +94,15 @@ def evaluate(model, loader, criterion, device, idx_to_char):
     total_items = 0
     all_preds = []
     all_refs = []
-    for images, labels, label_lengths, texts in loader:
+    for images, labels, label_lengths, input_lengths, texts in loader:
         images = images.to(device)
         labels = labels.to(device)
         label_lengths = label_lengths.to(device)
+        input_lengths = input_lengths.to(device)
 
         log_probs = model(images)
-        t, n, _ = log_probs.shape
-        input_lengths = torch.full((n,), t, dtype=torch.long, device=device)
-
         loss = criterion(log_probs, labels, input_lengths, label_lengths)
+        n = images.shape[0]
         total_loss += loss.item() * n
         total_items += n
 
@@ -115,8 +118,15 @@ def main():
     parser = argparse.ArgumentParser(description="Train the baseline OCR model")
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=8)
-    parser.add_argument("--lr", type=float, default=1e-3)
-    parser.add_argument("--hidden-size", type=int, default=128)
+    parser.add_argument("--lr", type=float, default=3e-3,
+                        help="Peak LR for the OneCycle schedule")
+    parser.add_argument("--hidden-size", type=int, default=256)
+    parser.add_argument("--lstm-layers", type=int, default=2)
+    parser.add_argument("--proj-size", type=int, default=256)
+    parser.add_argument("--img-height", type=int, default=64,
+                        help="Resized input height; Nastaliq detail needs >64")
+    parser.add_argument("--grad-clip", type=float, default=5.0,
+                        help="Max grad norm (0 disables clipping); CTC can spike")
     parser.add_argument("--data-dir", default=os.path.join(_REPO_ROOT, "data"))
     parser.add_argument("--checkpoint", default=os.path.join(
         _REPO_ROOT, "checkpoints", "baseline_best.pt"))
@@ -130,6 +140,8 @@ def main():
                         help="Use only the first N validation samples")
     parser.add_argument("--smoke", action="store_true",
                         help="Tiny CPU run (32 train / 16 val samples)")
+    parser.add_argument("--augment", action="store_true",
+                        help="Apply photometric/geometric jitter to training images")
     parser.add_argument("--history-out", default=None,
                         help="Write per-epoch metrics to this JSON file")
     args = parser.parse_args()
@@ -140,6 +152,8 @@ def main():
         device = torch.device(args.device)
     elif torch.cuda.is_available():
         device = torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        device = torch.device("mps")
     else:
         device = torch.device("cpu")
     print(f"device: {device}")
@@ -154,8 +168,10 @@ def main():
     print(f"vocab size (incl. blank): {len(vocab)}  "
           f"train={len(train_manifest)} val={len(val_manifest)}")
 
-    train_ds = OCRDataset(os.path.join(args.data_dir, "manifest_train.json"), vocab)
-    val_ds = OCRDataset(os.path.join(args.data_dir, "manifest_val.json"), vocab)
+    train_ds = OCRDataset(os.path.join(args.data_dir, "manifest_train.json"), vocab,
+                          img_height=args.img_height, augment=args.augment)
+    val_ds = OCRDataset(os.path.join(args.data_dir, "manifest_val.json"), vocab,
+                        img_height=args.img_height)
     if limit_train:
         train_ds = Subset(train_ds, range(min(limit_train, len(train_ds))))
     if limit_val:
@@ -169,15 +185,23 @@ def main():
                             pin_memory=(device.type == "cuda"))
 
     model = BaselineRecognizer(vocab_size=len(vocab),
-                               hidden_size=args.hidden_size).to(device)
+                               hidden_size=args.hidden_size,
+                               lstm_layers=args.lstm_layers,
+                               proj_size=args.proj_size,
+                               img_height=args.img_height).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.CTCLoss(blank=0, zero_infinity=True)
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer, max_lr=args.lr, total_steps=max(1, args.epochs * len(train_loader)),
+        pct_start=0.1, div_factor=10.0, final_div_factor=100.0)
 
     best_cer = float("inf")
     history = []
     for epoch in range(1, args.epochs + 1):
         start = time.time()
-        train_loss = train_one_epoch(model, train_loader, optimizer, criterion, device)
+        train_loss = train_one_epoch(model, train_loader, optimizer, criterion,
+                                     device, scheduler=scheduler,
+                                     grad_clip=args.grad_clip)
         val_loss, val_cer, preds, refs = evaluate(
             model, val_loader, criterion, device, idx_to_char)
         elapsed = time.time() - start
@@ -187,10 +211,12 @@ def main():
             "train_loss": train_loss,
             "val_loss": val_loss,
             "val_cer": val_cer,
+            "lr": optimizer.param_groups[0]["lr"],
         })
 
         print(f"epoch {epoch:>3}/{args.epochs} | train_loss {train_loss:.4f} | "
-              f"val_loss {val_loss:.4f} | val_CER {val_cer:.4f} | {elapsed:.1f}s")
+              f"val_loss {val_loss:.4f} | val_CER {val_cer:.4f} | "
+              f"lr {optimizer.param_groups[0]['lr']:.2e} | {elapsed:.1f}s")
         print(f"    ref : {refs[0]}")
         print(f"    pred: {preds[0]}")
 
