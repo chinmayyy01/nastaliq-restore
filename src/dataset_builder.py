@@ -49,7 +49,8 @@ def _rel(path: str) -> str:
 
 
 def build(sentences_path: str = SENTENCES_PATH, data_dir: str = DATA_DIR,
-          font_size: int = 64, limit: int = None) -> list:
+          font_size: int = 64, limit: int = None,
+          damage_severity: float = 1.0) -> list:
     """Render + damage every sentence and write images + manifests.
 
     Returns the full list of manifest entries.
@@ -67,7 +68,7 @@ def build(sentences_path: str = SENTENCES_PATH, data_dir: str = DATA_DIR,
     manifest = []
     for i, text in enumerate(sentences):
         clean = render_line(text, font_size=font_size)
-        damaged, mask = simulate_damage(clean, seed=i)
+        damaged, mask = simulate_damage(clean, seed=i, severity=damage_severity)
 
         name = f"sample_{i:04d}.png"
         clean_path = os.path.join(clean_dir, name)
@@ -122,8 +123,11 @@ def main():
     parser.add_argument("--font-size", type=int, default=64)
     parser.add_argument("--limit", type=int, default=None,
                         help="Only build the first N samples (debugging)")
+    parser.add_argument("--damage-severity", type=float, default=1.0,
+                        help="Damage multiplier: 1.0 mild, ~2.0 hard")
     args = parser.parse_args()
-    build(args.sentences, args.data_dir, args.font_size, args.limit)
+    build(args.sentences, args.data_dir, args.font_size, args.limit,
+          args.damage_severity)
 
 
 if __name__ == "__main__":

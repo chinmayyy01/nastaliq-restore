@@ -54,17 +54,24 @@ def _load_gray(path: str, img_height: int) -> np.ndarray:
 class RestorationDataset(Dataset):
     """Loads (damaged, mask, clean) triples from a manifest file.
 
-    When ``use_structure`` is set, the stroke-structure prior (see
-    ``structure_prior``) is computed from the damaged image and returned as an
-    extra ``[2, H, W]`` tensor; otherwise a zero tensor of the same shape is
-    returned so the tuple layout is stable.
+    ``structure_source`` controls the stroke-structure tensor (see
+    ``structure_prior``):
+
+        "none"    -> zeros (structure channel unused)
+        "damaged" -> structure observed in the damaged image (the naive prior)
+        "clean"   -> structure of the clean target (supervision for the
+                     structure-completion predictor)
+
+    The tensor is always returned (zeros when unused) so the tuple layout is
+    stable.
     """
 
     def __init__(self, manifest_path: str, img_height: int = IMG_HEIGHT,
-                 use_structure: bool = False):
+                 structure_source: str = "none"):
+        assert structure_source in ("none", "damaged", "clean")
         self.manifest = load_manifest(manifest_path)
         self.img_height = img_height
-        self.use_structure = use_structure
+        self.structure_source = structure_source
 
     def __len__(self) -> int:
         return len(self.manifest)
@@ -79,8 +86,10 @@ class RestorationDataset(Dataset):
         w = min(damaged.shape[1], mask.shape[1], clean.shape[1])
         damaged, mask, clean = damaged[:, :w], mask[:, :w], clean[:, :w]
 
-        if self.use_structure:
+        if self.structure_source == "damaged":
             structure = structure_channels(damaged)
+        elif self.structure_source == "clean":
+            structure = structure_channels(clean)
         else:
             structure = np.zeros((N_CHANNELS,) + damaged.shape, dtype=np.float32)
 
@@ -125,7 +134,7 @@ if __name__ == "__main__":
     from torch.utils.data import DataLoader
 
     manifest_path = os.path.join(_REPO_ROOT, "data", "manifest_train.json")
-    ds = RestorationDataset(manifest_path, use_structure=True)
+    ds = RestorationDataset(manifest_path, structure_source="damaged")
     print(f"dataset length: {len(ds)}")
 
     loader = DataLoader(ds, batch_size=4, collate_fn=restoration_collate)

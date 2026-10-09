@@ -99,14 +99,30 @@ def main():
     res_ckpt = torch.load(args.restoration_checkpoint, map_location="cpu")
     res_args = res_ckpt.get("args", {})
     base = res_args.get("base", 32)
-    use_structure = res_args.get("use_structure", False)
+    # New checkpoints store structure_source; old ones stored a bool flag.
+    structure_source = res_args.get("structure_source",
+                                    "damaged" if res_args.get("use_structure") else "none")
+    use_structure = structure_source != "none"
     restoration = RestorationUNet(in_channels=4 if use_structure else 2, base=base).to(device)
     restoration.load_state_dict(res_ckpt["model"])
     restoration.eval()
-    print(f"restoration: base={base}  structure={use_structure}  "
+    print(f"restoration: base={base}  structure={structure_source}  "
           f"epoch={res_ckpt.get('epoch')}  PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
 
+    predictor = None
+    if structure_source == "predicted":
+        from models.structure_completion import StructureCompletion
+        pckpt = torch.load(res_args.get("structure_checkpoint",
+                                       os.path.join(_REPO_ROOT, "checkpoints",
+                                                    "structure_completion.pt")),
+                           map_location="cpu")
+        predictor = StructureCompletion(base=pckpt.get("args", {}).get("base", 32)).to(device)
+        predictor.load_state_dict(pckpt["model"])
+        predictor.eval()
+        print(f"structure predictor: skelIoU {pckpt.get('iou', float('nan')):.4f}")
+
     refs, damaged_preds, restored_preds, clean_preds = [], [], [], []
+    damage_fracs = []
     psnr_vals, ssim_vals = [], []
     for item in val_manifest:
         damaged = _load_gray(item["damaged_path"], args.img_height)
@@ -114,6 +130,7 @@ def main():
         clean = _load_gray(item["clean_path"], args.img_height)
         w = min(damaged.shape[1], mask.shape[1], clean.shape[1])
         damaged, mask, clean = damaged[:, :w], mask[:, :w], clean[:, :w]
+        damage_fracs.append(float((mask > 0.5).mean()))
 
         # Pad to a multiple of 8 (white for images, zero for the mask) as the
         # training collate did, then crop the restoration back to the real width.
@@ -124,8 +141,14 @@ def main():
         m_t = torch.from_numpy(pad(mask, 0.0)).unsqueeze(0).unsqueeze(0).to(device)
         channels = [d_t, m_t]
         if use_structure:
-            st = structure_channels(pad(damaged, 1.0))
-            channels.append(torch.from_numpy(st).unsqueeze(0).to(device))
+            if structure_source == "predicted":
+                with torch.no_grad():
+                    st = predictor(torch.cat([d_t, m_t], dim=1))
+            elif structure_source == "clean":
+                st = torch.from_numpy(structure_channels(pad(clean, 1.0))).unsqueeze(0).to(device)
+            else:  # "damaged"
+                st = torch.from_numpy(structure_channels(pad(damaged, 1.0))).unsqueeze(0).to(device)
+            channels.append(st)
         with torch.no_grad():
             restored = restoration(torch.cat(channels, dim=1))[0, :, :, :w].cpu()
         restored_np = restored[0].numpy()
@@ -140,6 +163,21 @@ def main():
         psnr_vals.append(peak_signal_noise_ratio(clean, restored_np, data_range=1.0))
         ssim_vals.append(structural_similarity(clean, restored_np, data_range=1.0))
 
+    # CER broken down by damage severity: does structure help where it should?
+    med = float(np.median(damage_fracs))
+    buckets = {}
+    for name, lo, hi in [("low_damage", 0.0, med), ("high_damage", med, 1.0)]:
+        idx = [i for i, f in enumerate(damage_fracs) if lo <= f < hi or (hi == 1.0 and f >= hi)]
+        if not idx:
+            continue
+        r = [refs[i] for i in idx]
+        buckets[name] = {
+            "n": len(idx),
+            "cer_damaged": character_error_rate([damaged_preds[i] for i in idx], r),
+            "cer_restored": character_error_rate([restored_preds[i] for i in idx], r),
+            "cer_clean": character_error_rate([clean_preds[i] for i in idx], r),
+        }
+
     result = {
         "n": len(refs),
         "cer_damaged": character_error_rate(damaged_preds, refs),
@@ -147,6 +185,7 @@ def main():
         "cer_clean": character_error_rate(clean_preds, refs),
         "restoration_psnr": float(np.mean(psnr_vals)),
         "restoration_ssim": float(np.mean(ssim_vals)),
+        "damage_buckets": buckets,
         "samples": [
             {"ref": r, "damaged": d, "restored": s, "clean": c}
             for r, d, s, c in zip(refs[:20], damaged_preds[:20], restored_preds[:20], clean_preds[:20])
@@ -156,6 +195,9 @@ def main():
     print(f"val CER  restored: {result['cer_restored']:.4f}")
     print(f"val CER  clean   : {result['cer_clean']:.4f}  (recogniser upper bound)")
     print(f"restoration PSNR {result['restoration_psnr']:.2f} | SSIM {result['restoration_ssim']:.4f}")
+    for name, b in buckets.items():
+        print(f"  [{name:>11} n={b['n']:>3}] damaged {b['cer_damaged']:.4f} -> "
+              f"restored {b['cer_restored']:.4f}  (clean {b['cer_clean']:.4f})")
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)

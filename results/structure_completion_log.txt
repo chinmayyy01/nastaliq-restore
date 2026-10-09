@@ -1,0 +1,33 @@
+device: mps
+train=2120 val=530
+epoch   1/15 | train 0.3332 | val 0.2980 | skelIoU 0.2717 | 82.4s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.2717)
+epoch   2/15 | train 0.2799 | val 0.2621 | skelIoU 0.3505 | 77.0s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.3505)
+epoch   3/15 | train 0.2475 | val 0.2314 | skelIoU 0.4433 | 79.1s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.4433)
+epoch   4/15 | train 0.2188 | val 0.2043 | skelIoU 0.4985 | 85.5s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.4985)
+epoch   5/15 | train 0.1923 | val 0.1797 | skelIoU 0.5373 | 89.8s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.5373)
+epoch   6/15 | train 0.1677 | val 0.1563 | skelIoU 0.5552 | 90.7s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.5552)
+epoch   7/15 | train 0.1462 | val 0.1357 | skelIoU 0.6065 | 90.4s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.6065)
+epoch   8/15 | train 0.1273 | val 0.1184 | skelIoU 0.6355 | 90.5s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.6355)
+epoch   9/15 | train 0.1110 | val 0.1037 | skelIoU 0.6570 | 89.2s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.6570)
+epoch  10/15 | train 0.0967 | val 0.0902 | skelIoU 0.6716 | 89.3s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.6716)
+epoch  11/15 | train 0.0844 | val 0.0787 | skelIoU 0.6845 | 86.8s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.6845)
+epoch  12/15 | train 0.0737 | val 0.0688 | skelIoU 0.7008 | 94.1s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.7008)
+epoch  13/15 | train 0.0645 | val 0.0600 | skelIoU 0.7102 | 90.3s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.7102)
+epoch  14/15 | train 0.0564 | val 0.0526 | skelIoU 0.7236 | 90.5s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.7236)
+epoch  15/15 | train 0.0493 | val 0.0461 | skelIoU 0.7375 | 90.7s
+    saved -> /Users/chinmay/Projects/nastaliq-restore/checkpoints/structure_completion.pt (best skelIoU 0.7375)
+done. best val skeleton IoU: 0.7375

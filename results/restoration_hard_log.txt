@@ -1,0 +1,44 @@
+device: mps
+train=2120 val=530
+epoch   1/20 | train 0.6309 | val 0.5263 | PSNR 7.71 | SSIM 0.6835 | 76.8s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   2/20 | train 0.5150 | val 0.4914 | PSNR 8.08 | SSIM 0.7127 | 74.1s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   3/20 | train 0.4764 | val 0.4579 | PSNR 8.38 | SSIM 0.7229 | 81.3s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   4/20 | train 0.4460 | val 0.4320 | PSNR 8.69 | SSIM 0.7233 | 88.5s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   5/20 | train 0.4173 | val 0.4031 | PSNR 9.31 | SSIM 0.6914 | 92.3s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   6/20 | train 0.3881 | val 0.3731 | PSNR 10.00 | SSIM 0.7108 | 101.2s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   7/20 | train 0.3595 | val 0.3430 | PSNR 10.59 | SSIM 0.7313 | 129.4s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   8/20 | train 0.3349 | val 0.3152 | PSNR 11.14 | SSIM 0.7493 | 96.8s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch   9/20 | train 0.3110 | val 0.3022 | PSNR 11.64 | SSIM 0.7605 | 90.9s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  10/20 | train 0.2891 | val 0.2785 | PSNR 12.15 | SSIM 0.7727 | 125.7s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  11/20 | train 0.2694 | val 0.2625 | PSNR 12.72 | SSIM 0.7823 | 85.2s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  12/20 | train 0.2504 | val 0.2450 | PSNR 13.21 | SSIM 0.7936 | 86.5s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  13/20 | train 0.2325 | val 0.2229 | PSNR 14.03 | SSIM 0.8073 | 90.2s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  14/20 | train 0.2163 | val 0.2112 | PSNR 14.52 | SSIM 0.8114 | 123.3s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  15/20 | train 0.2004 | val 0.2018 | PSNR 14.94 | SSIM 0.8172 | 110.5s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  16/20 | train 0.1855 | val 0.1851 | PSNR 15.60 | SSIM 0.8164 | 92.1s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  17/20 | train 0.1718 | val 0.1726 | PSNR 16.48 | SSIM 0.8280 | 102.1s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  18/20 | train 0.1518 | val 0.1500 | PSNR 18.10 | SSIM 0.8727 | 105.0s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  19/20 | train 0.1367 | val 0.1389 | PSNR 18.70 | SSIM 0.8823 | 89.4s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+epoch  20/20 | train 0.1261 | val 0.1281 | PSNR 19.42 | SSIM 0.8887 | 109.8s
+    saved -> checkpoints/restoration_hard.pt (best PSNR)
+history -> results/restoration_hard_history.json
+done. best score: 19.4227

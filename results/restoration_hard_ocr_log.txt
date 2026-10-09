@@ -1,0 +1,5 @@
+device: mps
+train=2120 val=530
+recogniser-in-the-loop: /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (CER 0.5577), lambda_ocr=0.1
+epoch   1/20 | train 1.1813 | val 0.6026 | PSNR 7.00 | SSIM 0.6180 | CER 0.7026 | 100.1s
+    saved -> checkpoints/restoration_hard_ocr.pt (best CER)

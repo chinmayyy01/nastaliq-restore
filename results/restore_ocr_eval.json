@@ -5,6 +5,20 @@
   "cer_clean": 0.5586926762491444,
   "restoration_psnr": 23.38763117810038,
   "restoration_ssim": 0.9415380894897165,
+  "damage_buckets": {
+    "low_damage": {
+      "n": 265,
+      "cer_damaged": 0.5773802785010755,
+      "cer_restored": 0.5705875693422393,
+      "cer_clean": 0.5651534020151704
+    },
+    "high_damage": {
+      "n": 265,
+      "cer_damaged": 0.6084607426140936,
+      "cer_restored": 0.581216231750776,
+      "cer_clean": 0.5521324290148293
+    }
+  },
   "samples": [
     {
       "ref": "قصور اس کا ہی ہے۔",

@@ -78,8 +78,13 @@ def add_fading(arr: np.ndarray, mask: np.ndarray, band_frac=(0.15, 0.35), fade_s
     return farr.clip(0, 255).astype(np.uint8), mask
 
 
-def simulate_damage(img: Image.Image, seed: int = None) -> tuple[Image.Image, Image.Image]:
+def simulate_damage(img: Image.Image, seed: int = None,
+                    severity: float = 1.0) -> tuple[Image.Image, Image.Image]:
     """Apply a random combination of damage types to one clean text-line image.
+
+    ``severity`` scales the amount of damage: counts (blobs/tears/stains) and
+    sizes grow with it, and more damage types are stacked. ``1.0`` is the mild
+    original; ``2.0`` is used to make the restoration task actually hard.
 
     Returns:
         damaged_img: the damaged grayscale PIL image
@@ -90,11 +95,35 @@ def simulate_damage(img: Image.Image, seed: int = None) -> tuple[Image.Image, Im
         random.seed(seed)
         np.random.seed(seed)
 
+    s = severity
+
+    def counts(rng):
+        return (max(1, int(round(rng[0] * s))), max(1, int(round(rng[1] * s))))
+
+    def span(rng, cap=None):
+        hi = rng[1] * s
+        if cap is not None:
+            hi = min(hi, cap)
+        return (rng[0] * s, hi)
+
+    def int_span(rng, cap=None):
+        lo, hi = span(rng, cap)
+        return (max(1, int(round(lo))), max(1, int(round(hi))))
+
     arr = _to_array(img).copy()
     mask = np.zeros_like(arr)
 
-    damage_fns = [add_ink_loss, add_tear, add_stain, add_fading]
-    chosen = random.sample(damage_fns, k=random.randint(1, 3))
+    damage_fns = [
+        lambda a, m: add_ink_loss(a, m, n_blobs=counts((3, 8)), radius=int_span((3, 9))),
+        lambda a, m: add_tear(a, m, n_tears=counts((1, 2)), size_frac=span((0.08, 0.22), cap=0.5)),
+        lambda a, m: add_stain(a, m, n_stains=counts((1, 3)), radius=int_span((15, 35)),
+                               strength=span((0.3, 0.6), cap=0.95)),
+        lambda a, m: add_fading(a, m, band_frac=span((0.15, 0.35), cap=0.6),
+                                fade_strength=span((0.4, 0.7), cap=0.95)),
+    ]
+    k_lo = max(1, int(round(1 * s)))
+    k_hi = min(len(damage_fns), max(k_lo, int(round(3 * s))))
+    chosen = random.sample(damage_fns, k=random.randint(k_lo, k_hi))
     for fn in chosen:
         arr, mask = fn(arr, mask)
 

@@ -1,0 +1,33 @@
+device: mps
+train=2120 val=530
+recogniser-in-the-loop: /Users/chinmay/Projects/nastaliq-restore/checkpoints/baseline_best.pt (CER 0.5577), lambda_ocr=0.1
+epoch   1/20 | train 0.9468 | val 0.5363 | PSNR 6.79 | SSIM 0.6541 | CER 0.6075 | 103.9s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch   2/20 | train 0.7542 | val 0.4975 | PSNR 7.29 | SSIM 0.6592 | CER 0.5910 | 124.7s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch   3/20 | train 0.7047 | val 0.4497 | PSNR 7.80 | SSIM 0.6546 | CER 0.5879 | 119.0s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch   4/20 | train 0.6727 | val 0.4182 | PSNR 8.38 | SSIM 0.6372 | CER 0.5870 | 119.9s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch   5/20 | train 0.6426 | val 0.3921 | PSNR 9.07 | SSIM 0.6681 | CER 0.5850 | 119.4s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch   6/20 | train 0.6124 | val 0.3713 | PSNR 9.60 | SSIM 0.6798 | CER 0.5870 | 133.6s
+epoch   7/20 | train 0.5883 | val 0.3451 | PSNR 10.25 | SSIM 0.7244 | CER 0.5872 | 135.6s
+epoch   8/20 | train 0.5656 | val 0.3257 | PSNR 10.72 | SSIM 0.7520 | CER 0.5830 | 122.0s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch   9/20 | train 0.5427 | val 0.3301 | PSNR 10.43 | SSIM 0.7471 | CER 0.5832 | 121.4s
+epoch  10/20 | train 0.5246 | val 0.2980 | PSNR 11.57 | SSIM 0.7766 | CER 0.5850 | 121.5s
+epoch  11/20 | train 0.5057 | val 0.2818 | PSNR 12.05 | SSIM 0.7922 | CER 0.5856 | 121.0s
+epoch  12/20 | train 0.4864 | val 0.2579 | PSNR 12.66 | SSIM 0.7988 | CER 0.5831 | 120.6s
+epoch  13/20 | train 0.4691 | val 0.2474 | PSNR 13.03 | SSIM 0.8113 | CER 0.5836 | 132.0s
+epoch  14/20 | train 0.4546 | val 0.2312 | PSNR 13.45 | SSIM 0.8215 | CER 0.5833 | 148.7s
+epoch  15/20 | train 0.4403 | val 0.2167 | PSNR 13.96 | SSIM 0.8350 | CER 0.5834 | 133.8s
+epoch  16/20 | train 0.4254 | val 0.2089 | PSNR 14.29 | SSIM 0.8369 | CER 0.5822 | 132.9s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+epoch  17/20 | train 0.4126 | val 0.1954 | PSNR 14.79 | SSIM 0.8430 | CER 0.5834 | 128.0s
+epoch  18/20 | train 0.4006 | val 0.1812 | PSNR 15.61 | SSIM 0.8549 | CER 0.5822 | 129.4s
+epoch  19/20 | train 0.3910 | val 0.1692 | PSNR 16.00 | SSIM 0.8533 | CER 0.5837 | 134.7s
+epoch  20/20 | train 0.3795 | val 0.1641 | PSNR 16.30 | SSIM 0.8598 | CER 0.5812 | 131.5s
+    saved -> checkpoints/restoration_ocr.pt (best CER)
+history -> results/restoration_ocr_history.json
+done. best score: -0.5812
