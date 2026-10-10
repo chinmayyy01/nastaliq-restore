@@ -1,0 +1,45 @@
+device: mps
+train=2120 val=530
+structure predictor: checkpoints/structure_completion.pt (epoch 15, L1 0.0507)
+epoch   1/20 | train 0.6769 | val 0.6043 | PSNR 7.27 | SSIM 0.6053 | 99.9s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   2/20 | train 0.5440 | val 0.5129 | PSNR 7.92 | SSIM 0.7078 | 151.8s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   3/20 | train 0.5026 | val 0.4796 | PSNR 8.12 | SSIM 0.7221 | 137.2s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   4/20 | train 0.4751 | val 0.4523 | PSNR 8.41 | SSIM 0.7323 | 144.1s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   5/20 | train 0.4495 | val 0.4425 | PSNR 8.82 | SSIM 0.7297 | 138.9s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   6/20 | train 0.4235 | val 0.4115 | PSNR 9.26 | SSIM 0.7483 | 142.7s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   7/20 | train 0.3983 | val 0.3892 | PSNR 9.79 | SSIM 0.7749 | 158.7s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   8/20 | train 0.3722 | val 0.3712 | PSNR 9.93 | SSIM 0.7744 | 137.1s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch   9/20 | train 0.3496 | val 0.3698 | PSNR 10.27 | SSIM 0.7822 | 133.3s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  10/20 | train 0.3272 | val 0.3302 | PSNR 10.94 | SSIM 0.8139 | 144.6s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  11/20 | train 0.3055 | val 0.3068 | PSNR 11.54 | SSIM 0.8067 | 153.4s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  12/20 | train 0.2860 | val 0.2854 | PSNR 12.14 | SSIM 0.8056 | 147.5s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  13/20 | train 0.2675 | val 0.2716 | PSNR 12.63 | SSIM 0.8128 | 144.9s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  14/20 | train 0.2498 | val 0.2584 | PSNR 12.91 | SSIM 0.8203 | 143.6s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  15/20 | train 0.2330 | val 0.2386 | PSNR 13.73 | SSIM 0.8186 | 145.9s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  16/20 | train 0.2173 | val 0.2193 | PSNR 14.17 | SSIM 0.8405 | 157.6s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  17/20 | train 0.2027 | val 0.2030 | PSNR 15.11 | SSIM 0.8374 | 155.0s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  18/20 | train 0.1885 | val 0.1877 | PSNR 15.81 | SSIM 0.8410 | 134.6s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  19/20 | train 0.1747 | val 0.1816 | PSNR 16.08 | SSIM 0.8400 | 138.4s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+epoch  20/20 | train 0.1555 | val 0.1565 | PSNR 17.91 | SSIM 0.8830 | 129.5s
+    saved -> checkpoints/restoration_hard_predstruct.pt (best PSNR)
+history -> results/restoration_hard_predstruct_history.json
+done. best score: 17.9133

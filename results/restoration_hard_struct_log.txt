@@ -1,0 +1,44 @@
+device: mps
+train=2120 val=530
+epoch   1/20 | train 0.6870 | val 0.5841 | PSNR 7.69 | SSIM 0.6576 | 82.1s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   2/20 | train 0.5660 | val 0.5267 | PSNR 8.35 | SSIM 0.7049 | 115.7s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   3/20 | train 0.5175 | val 0.5080 | PSNR 8.65 | SSIM 0.7240 | 121.1s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   4/20 | train 0.4826 | val 0.4607 | PSNR 8.91 | SSIM 0.7391 | 115.7s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   5/20 | train 0.4529 | val 0.4426 | PSNR 9.16 | SSIM 0.7486 | 105.0s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   6/20 | train 0.4264 | val 0.4239 | PSNR 9.60 | SSIM 0.7497 | 122.5s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   7/20 | train 0.3972 | val 0.3775 | PSNR 10.35 | SSIM 0.7528 | 117.3s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   8/20 | train 0.3682 | val 0.3489 | PSNR 11.28 | SSIM 0.7750 | 115.5s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch   9/20 | train 0.3408 | val 0.3170 | PSNR 11.97 | SSIM 0.7991 | 115.1s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  10/20 | train 0.3174 | val 0.2982 | PSNR 12.43 | SSIM 0.7781 | 118.8s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  11/20 | train 0.2947 | val 0.2973 | PSNR 12.68 | SSIM 0.7714 | 108.8s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  12/20 | train 0.2733 | val 0.2659 | PSNR 13.37 | SSIM 0.8205 | 107.8s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  13/20 | train 0.2540 | val 0.2363 | PSNR 14.27 | SSIM 0.8274 | 105.7s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  14/20 | train 0.2350 | val 0.2284 | PSNR 14.71 | SSIM 0.8369 | 107.5s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  15/20 | train 0.2181 | val 0.2169 | PSNR 15.20 | SSIM 0.8491 | 104.0s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  16/20 | train 0.2018 | val 0.1999 | PSNR 15.92 | SSIM 0.8553 | 125.9s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  17/20 | train 0.1871 | val 0.1871 | PSNR 16.37 | SSIM 0.8841 | 122.6s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  18/20 | train 0.1739 | val 0.1759 | PSNR 17.04 | SSIM 0.8707 | 111.3s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  19/20 | train 0.1616 | val 0.1627 | PSNR 17.70 | SSIM 0.8838 | 108.9s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+epoch  20/20 | train 0.1499 | val 0.1485 | PSNR 18.33 | SSIM 0.8907 | 112.1s
+    saved -> checkpoints/restoration_hard_struct.pt (best PSNR)
+history -> results/restoration_hard_struct_history.json
+done. best score: 18.3270

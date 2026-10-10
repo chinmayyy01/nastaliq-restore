@@ -1,0 +1,33 @@
+device: mps
+train=2120 val=530
+epoch   1/15 | train 0.3303 | val 0.2976 | skelIoU 0.1820 | 81.5s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.1820)
+epoch   2/15 | train 0.2805 | val 0.2624 | skelIoU 0.2485 | 77.4s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.2485)
+epoch   3/15 | train 0.2487 | val 0.2313 | skelIoU 0.2955 | 90.0s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.2955)
+epoch   4/15 | train 0.2208 | val 0.2070 | skelIoU 0.3241 | 99.5s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.3241)
+epoch   5/15 | train 0.1944 | val 0.1824 | skelIoU 0.3274 | 114.1s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.3274)
+epoch   6/15 | train 0.1708 | val 0.1597 | skelIoU 0.3284 | 107.0s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.3284)
+epoch   7/15 | train 0.1494 | val 0.1400 | skelIoU 0.3609 | 106.3s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.3609)
+epoch   8/15 | train 0.1310 | val 0.1226 | skelIoU 0.3809 | 117.2s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.3809)
+epoch   9/15 | train 0.1148 | val 0.1076 | skelIoU 0.4012 | 115.8s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.4012)
+epoch  10/15 | train 0.1006 | val 0.0946 | skelIoU 0.4265 | 107.7s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.4265)
+epoch  11/15 | train 0.0885 | val 0.0823 | skelIoU 0.4536 | 103.6s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.4536)
+epoch  12/15 | train 0.0778 | val 0.0724 | skelIoU 0.4601 | 111.2s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.4601)
+epoch  13/15 | train 0.0686 | val 0.0642 | skelIoU 0.4912 | 108.5s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.4912)
+epoch  14/15 | train 0.0604 | val 0.0568 | skelIoU 0.5080 | 109.0s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.5080)
+epoch  15/15 | train 0.0534 | val 0.0507 | skelIoU 0.5215 | 113.3s
+    saved -> checkpoints/structure_completion.pt (best skelIoU 0.5215)
+done. best val skeleton IoU: 0.5215
