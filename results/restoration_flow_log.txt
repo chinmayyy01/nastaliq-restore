@@ -1,0 +1,33 @@
+device: mps
+train=2120 val=530
+epoch   1/20 | cfm_loss 0.4550 | PSNR 18.30 | SSIM 0.7064 | 195.7s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 18.30)
+epoch   2/20 | cfm_loss 0.1286 | PSNR 19.18 | SSIM 0.7581 | 238.9s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.18)
+epoch   3/20 | cfm_loss 0.1007 | PSNR 19.28 | SSIM 0.7872 | 261.0s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.28)
+epoch   4/20 | cfm_loss 0.0872 | PSNR 19.36 | SSIM 0.8208 | 259.1s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.36)
+epoch   5/20 | cfm_loss 0.0710 | PSNR 19.26 | SSIM 0.8170 | 238.0s
+epoch   6/20 | cfm_loss 0.0648 | PSNR 19.53 | SSIM 0.8123 | 237.0s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.53)
+epoch   7/20 | cfm_loss 0.0610 | PSNR 19.65 | SSIM 0.8018 | 246.0s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.65)
+epoch   8/20 | cfm_loss 0.0599 | PSNR 19.72 | SSIM 0.8492 | 239.9s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.72)
+epoch   9/20 | cfm_loss 0.0500 | PSNR 19.87 | SSIM 0.8394 | 238.5s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 19.87)
+epoch  10/20 | cfm_loss 0.0487 | PSNR 19.81 | SSIM 0.8549 | 236.5s
+epoch  11/20 | cfm_loss 0.0479 | PSNR 19.74 | SSIM 0.8584 | 239.7s
+epoch  12/20 | cfm_loss 0.0459 | PSNR 20.10 | SSIM 0.8713 | 235.8s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 20.10)
+epoch  13/20 | cfm_loss 0.0456 | PSNR 20.53 | SSIM 0.8345 | 237.5s
+    saved -> checkpoints/restoration_flow.pt (best PSNR 20.53)
+epoch  14/20 | cfm_loss 0.0401 | PSNR 20.22 | SSIM 0.8702 | 242.0s
+epoch  15/20 | cfm_loss 0.0396 | PSNR 19.95 | SSIM 0.8759 | 235.4s
+epoch  16/20 | cfm_loss 0.0379 | PSNR 20.11 | SSIM 0.8502 | 245.5s
+epoch  17/20 | cfm_loss 0.0371 | PSNR 20.33 | SSIM 0.8840 | 250.4s
+epoch  18/20 | cfm_loss 0.0354 | PSNR 20.39 | SSIM 0.8751 | 234.4s
+epoch  19/20 | cfm_loss 0.0351 | PSNR 20.33 | SSIM 0.8539 | 209.9s
+epoch  20/20 | cfm_loss 0.0360 | PSNR 20.29 | SSIM 0.8776 | 210.5s
+done. best val PSNR: 20.53

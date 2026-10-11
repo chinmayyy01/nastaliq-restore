@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.join(_REPO_ROOT, "src"))
 from dataset import build_vocab, load_manifest, WIDTH_DOWNSAMPLE  # noqa: E402
 from models.baseline_recognizer import BaselineRecognizer, greedy_decode  # noqa: E402
 from models.restoration_unet import RestorationUNet  # noqa: E402
+from models.flow_restoration import FlowRestoration, sample as flow_sample  # noqa: E402
 from restoration_data import _load_gray  # noqa: E402
 from structure_prior import structure_channels  # noqa: E402
 from train_baseline import character_error_rate  # noqa: E402
@@ -68,6 +69,8 @@ def main():
         _REPO_ROOT, "checkpoints", "baseline_best.pt"))
     parser.add_argument("--data-dir", default=os.path.join(_REPO_ROOT, "data"))
     parser.add_argument("--img-height", type=int, default=64)
+    parser.add_argument("--flow-steps", type=int, default=20,
+                        help="Euler steps for flow-matching checkpoints")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--out", default=os.path.join(_REPO_ROOT, "results", "restore_ocr_eval.json"))
     parser.add_argument("--device", default=None)
@@ -98,16 +101,27 @@ def main():
 
     res_ckpt = torch.load(args.restoration_checkpoint, map_location="cpu")
     res_args = res_ckpt.get("args", {})
-    base = res_args.get("base", 32)
-    # New checkpoints store structure_source; old ones stored a bool flag.
-    structure_source = res_args.get("structure_source",
-                                    "damaged" if res_args.get("use_structure") else "none")
-    use_structure = structure_source != "none"
-    restoration = RestorationUNet(in_channels=4 if use_structure else 2, base=base).to(device)
-    restoration.load_state_dict(res_ckpt["model"])
-    restoration.eval()
-    print(f"restoration: base={base}  structure={structure_source}  "
-          f"epoch={res_ckpt.get('epoch')}  PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
+    is_flow = bool(res_ckpt.get("flow", False) or res_args.get("flow", False))
+    if is_flow:
+        base = res_args.get("base", 32)
+        restoration = FlowRestoration(base=base, emb_dim=res_args.get("emb_dim", 128)).to(device)
+        restoration.load_state_dict(res_ckpt["model"])
+        restoration.eval()
+        structure_source = "none"
+        use_structure = False
+        print(f"restoration: FLOW  base={base}  epoch={res_ckpt.get('epoch')}  "
+              f"PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
+    else:
+        base = res_args.get("base", 32)
+        # New checkpoints store structure_source; old ones stored a bool flag.
+        structure_source = res_args.get("structure_source",
+                                        "damaged" if res_args.get("use_structure") else "none")
+        use_structure = structure_source != "none"
+        restoration = RestorationUNet(in_channels=4 if use_structure else 2, base=base).to(device)
+        restoration.load_state_dict(res_ckpt["model"])
+        restoration.eval()
+        print(f"restoration: base={base}  structure={structure_source}  "
+              f"epoch={res_ckpt.get('epoch')}  PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
 
     predictor = None
     if structure_source == "predicted":
@@ -139,18 +153,21 @@ def main():
                                   constant_values=v)
         d_t = torch.from_numpy(pad(damaged, 1.0)).unsqueeze(0).unsqueeze(0).to(device)
         m_t = torch.from_numpy(pad(mask, 0.0)).unsqueeze(0).unsqueeze(0).to(device)
-        channels = [d_t, m_t]
-        if use_structure:
-            if structure_source == "predicted":
-                with torch.no_grad():
-                    st = predictor(torch.cat([d_t, m_t], dim=1))
-            elif structure_source == "clean":
-                st = torch.from_numpy(structure_channels(pad(clean, 1.0))).unsqueeze(0).to(device)
-            else:  # "damaged"
-                st = torch.from_numpy(structure_channels(pad(damaged, 1.0))).unsqueeze(0).to(device)
-            channels.append(st)
         with torch.no_grad():
-            restored = restoration(torch.cat(channels, dim=1))[0, :, :, :w].cpu()
+            if is_flow:
+                restored = flow_sample(restoration, d_t, m_t, steps=args.flow_steps,
+                                       seed=0)[0, :, :, :w].cpu()
+            else:
+                channels = [d_t, m_t]
+                if use_structure:
+                    if structure_source == "predicted":
+                        st = predictor(torch.cat([d_t, m_t], dim=1))
+                    elif structure_source == "clean":
+                        st = torch.from_numpy(structure_channels(pad(clean, 1.0))).unsqueeze(0).to(device)
+                    else:  # "damaged"
+                        st = torch.from_numpy(structure_channels(pad(damaged, 1.0))).unsqueeze(0).to(device)
+                    channels.append(st)
+                restored = restoration(torch.cat(channels, dim=1))[0, :, :, :w].cpu()
         restored_np = restored[0].numpy()
 
         widths = [w]
