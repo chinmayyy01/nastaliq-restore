@@ -155,6 +155,40 @@ def sample(model, damaged, mask, steps: int = 20, seed: int = None):
     return damaged * (1 - mask) + x * mask
 
 
+def reconstruct_x1(model, clean, damaged, mask, t=None):
+    """One-step estimate of the clean image from the predicted velocity.
+
+    Since x_t = (1-t) x0 + t x1 and the target velocity is u = x1 - x0, the
+    reconstruction x1_hat = x_t + (1-t) v is *exact* whenever v is correct, for
+    every t. So a recognition loss on x1_hat back-propagates into the velocity
+    field without ever running the sampling loop -- far cheaper than
+    ``sample_with_grad`` and it guides the whole trajectory.
+    """
+    n = clean.shape[0]
+    if t is None:
+        # Bias toward the data end so the estimate is well-conditioned early on.
+        t = 0.5 + 0.5 * torch.rand(n, device=clean.device)
+    x0 = torch.randn_like(clean)
+    t_ = t[:, None, None, None]
+    x_t = (1 - t_) * x0 + t_ * clean
+    v = model(torch.cat([x_t, damaged, mask], dim=1), t)
+    x1 = (x_t + (1 - t_) * v).clamp(0, 1)
+    return damaged * (1 - mask) + x1 * mask
+
+
+def sample_with_grad(model, damaged, mask, steps: int = 6):
+    """Same Euler integration but differentiable, so a recognition loss can be
+    back-propagated into the velocity field (recognition-in-the-loop)."""
+    x = torch.randn_like(damaged)
+    dt = 1.0 / steps
+    for i in range(steps):
+        t = torch.full((damaged.shape[0],), i * dt, device=damaged.device)
+        v = model(torch.cat([x, damaged, mask], dim=1), t)
+        x = x + v * dt
+    x = x.clamp(0, 1)
+    return damaged * (1 - mask) + x * mask
+
+
 if __name__ == "__main__":
     import os
     import sys

@@ -58,6 +58,25 @@ def _infer_recognizer_config(state: dict) -> dict:
     }
 
 
+def prepare_frozen_recognizer(recognizer):
+    """Freeze a recogniser for recognition-in-the-loop.
+
+    cuDNN refuses to back-propagate through an RNN in eval mode, so the LSTM
+    must stay in train mode; but train-mode BatchNorm would corrupt the frozen
+    running stats, and dropout would add noise. So: LSTM in train (dropout off),
+    everything else in eval, all parameters frozen.
+    """
+    recognizer.train()
+    recognizer.lstm.dropout = 0.0
+    recognizer.dropout.eval()
+    for m in recognizer.modules():
+        if isinstance(m, nn.modules.batchnorm._BatchNorm):
+            m.eval()
+    for p in recognizer.parameters():
+        p.requires_grad_(False)
+    return recognizer
+
+
 def build_input(damaged, mask, structure, use_structure: bool):
     """Assemble the network input; add the structure prior only when enabled."""
     if use_structure:
@@ -235,9 +254,7 @@ def main():
         rec_cfg = _infer_recognizer_config(rckpt["model_state_dict"])
         recognizer = BaselineRecognizer(vocab_size=len(vocab), **rec_cfg).to(device)
         recognizer.load_state_dict(rckpt["model_state_dict"])
-        recognizer.eval()
-        for p in recognizer.parameters():
-            p.requires_grad_(False)
+        prepare_frozen_recognizer(recognizer)
         ocr_criterion = nn.CTCLoss(blank=0, zero_infinity=True)
         print(f"recogniser-in-the-loop: {args.ocr_checkpoint} (CER {rckpt.get('cer', float('nan')):.4f}), "
               f"lambda_ocr={args.lambda_ocr}")

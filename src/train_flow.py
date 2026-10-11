@@ -25,15 +25,27 @@ if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
 
 from restoration_data import RestorationDataset, restoration_collate
-from models.flow_restoration import FlowRestoration, cfm_loss, sample
+from models.flow_restoration import (FlowRestoration, cfm_loss, sample,
+                                     reconstruct_x1)
+from train_restoration import (ctc_loss_on_restored, _infer_recognizer_config,
+                               prepare_frozen_recognizer)
+from models.baseline_recognizer import BaselineRecognizer, greedy_decode
+from train_baseline import character_error_rate
+from dataset import build_vocab, load_manifest
 
 
-def train_one_epoch(model, loader, optimizer, device, grad_clip=5.0):
+def train_one_epoch(model, loader, optimizer, device, grad_clip=5.0,
+                    recognizer=None, vocab=None, ocr_criterion=None,
+                    lambda_ocr=0.0):
     model.train()
     total, count = 0.0, 0
-    for damaged, mask, clean, _, _, _ in loader:
+    for damaged, mask, clean, _, widths, texts in loader:
         damaged, mask, clean = damaged.to(device), mask.to(device), clean.to(device)
         loss = cfm_loss(model, clean, damaged, mask)
+        if recognizer is not None and lambda_ocr > 0:
+            x1_hat = reconstruct_x1(model, clean, damaged, mask)
+            loss = loss + lambda_ocr * ctc_loss_on_restored(
+                x1_hat, texts, widths, recognizer, vocab, ocr_criterion, device)
         optimizer.zero_grad()
         loss.backward()
         if grad_clip:
@@ -45,20 +57,26 @@ def train_one_epoch(model, loader, optimizer, device, grad_clip=5.0):
 
 
 @torch.no_grad()
-def evaluate(model, loader, device, steps=12, limit=None):
+def evaluate(model, loader, device, steps=12, limit=None,
+             recognizer=None, idx_to_char=None):
     model.eval()
     psnr_vals, ssim_vals = [], []
-    for i, (damaged, mask, clean, _, _, _) in enumerate(loader):
+    preds, refs = [], []
+    for i, (damaged, mask, clean, _, _, texts) in enumerate(loader):
         if limit is not None and i * loader.batch_size >= limit:
             break
         damaged, mask, clean = damaged.to(device), mask.to(device), clean.to(device)
         out = sample(model, damaged, mask, steps=steps)
+        if recognizer is not None and idx_to_char is not None:
+            preds.extend(greedy_decode(recognizer(out).cpu(), idx_to_char))
+            refs.extend(texts)
         out_np = out.cpu().numpy()[:, 0]
         clean_np = clean.cpu().numpy()[:, 0]
         for p, c in zip(out_np, clean_np):
             psnr_vals.append(peak_signal_noise_ratio(c, p, data_range=1.0))
             ssim_vals.append(structural_similarity(c, p, data_range=1.0))
-    return float(np.mean(psnr_vals)), float(np.mean(ssim_vals))
+    cer = character_error_rate(preds, refs) if refs else None
+    return float(np.mean(psnr_vals)), float(np.mean(ssim_vals)), cer
 
 
 def main():
@@ -70,6 +88,12 @@ def main():
     parser.add_argument("--emb-dim", type=int, default=128)
     parser.add_argument("--img-height", type=int, default=64)
     parser.add_argument("--sample-steps", type=int, default=12)
+    parser.add_argument("--train-steps", type=int, default=6,
+                        help="(unused; kept for CLI compat)")
+    parser.add_argument("--lambda-ocr", type=float, default=0.0,
+                        help="Weight of the CTC loss back-propagated through sampling")
+    parser.add_argument("--ocr-checkpoint", default=os.path.join(
+        _REPO_ROOT, "checkpoints", "baseline_best.pt"))
     parser.add_argument("--grad-clip", type=float, default=5.0)
     parser.add_argument("--data-dir", default=os.path.join(_REPO_ROOT, "data"))
     parser.add_argument("--checkpoint", default=os.path.join(
@@ -116,27 +140,48 @@ def main():
         optimizer, max_lr=args.lr, total_steps=max(1, args.epochs * len(train_loader)),
         pct_start=0.1)
 
-    best_psnr = float("-inf")
+    recognizer, vocab, idx_to_char, ocr_criterion = None, None, None, None
+    if args.lambda_ocr > 0:
+        train_manifest = load_manifest(os.path.join(args.data_dir, "manifest_train.json"))
+        val_manifest = load_manifest(os.path.join(args.data_dir, "manifest_val.json"))
+        vocab = build_vocab(train_manifest + val_manifest)
+        idx_to_char = {i: c for c, i in vocab.items() if c != "<blank>"}
+        rckpt = torch.load(args.ocr_checkpoint, map_location="cpu")
+        recognizer = BaselineRecognizer(vocab_size=len(vocab),
+                                        **_infer_recognizer_config(rckpt["model_state_dict"])).to(device)
+        recognizer.load_state_dict(rckpt["model_state_dict"])
+        prepare_frozen_recognizer(recognizer)
+        ocr_criterion = nn.CTCLoss(blank=0, zero_infinity=True)
+        print(f"recognition-in-the-loop: lambda_ocr={args.lambda_ocr} "
+              f"(one-step reconstruction estimate)")
+
+    best_score = float("-inf")
     history = []
     for epoch in range(1, args.epochs + 1):
         start = time.time()
-        train_loss = train_one_epoch(model, train_loader, optimizer, device, args.grad_clip)
+        train_loss = train_one_epoch(model, train_loader, optimizer, device, args.grad_clip,
+                                     recognizer, vocab, ocr_criterion, args.lambda_ocr)
         scheduler.step()
-        psnr, ssim = evaluate(model, val_loader, device, args.sample_steps, args.val_limit)
-        history.append({"epoch": epoch, "train_loss": train_loss, "psnr": psnr, "ssim": ssim})
-        print(f"epoch {epoch:>3}/{args.epochs} | cfm_loss {train_loss:.4f} | "
-              f"PSNR {psnr:.2f} | SSIM {ssim:.4f} | {time.time()-start:.1f}s")
-        if psnr > best_psnr:
-            best_psnr = psnr
+        psnr, ssim, cer = evaluate(model, val_loader, device, args.sample_steps,
+                                   args.val_limit, recognizer, idx_to_char)
+        history.append({"epoch": epoch, "train_loss": train_loss, "psnr": psnr,
+                        "ssim": ssim, "cer": cer})
+        cer_str = f" | CER {cer:.4f}" if cer is not None else ""
+        print(f"epoch {epoch:>3}/{args.epochs} | loss {train_loss:.4f} | "
+              f"PSNR {psnr:.2f} | SSIM {ssim:.4f}{cer_str} | {time.time()-start:.1f}s")
+        score = -cer if cer is not None else psnr
+        if score > best_score:
+            best_score = score
             torch.save({"model": model.state_dict(), "epoch": epoch, "psnr": psnr,
-                        "ssim": ssim, "flow": True, "args": vars(args)}, args.checkpoint)
-            print(f"    saved -> {args.checkpoint} (best PSNR {best_psnr:.2f})")
+                        "ssim": ssim, "cer": cer, "flow": True, "args": vars(args)},
+                       args.checkpoint)
+            print(f"    saved -> {args.checkpoint} (best {'CER' if cer is not None else 'PSNR'})")
 
     if args.history_out:
         os.makedirs(os.path.dirname(os.path.abspath(args.history_out)), exist_ok=True)
         with open(args.history_out, "w", encoding="utf-8") as f:
             json.dump(history, f, indent=2)
-    print(f"done. best val PSNR: {best_psnr:.2f}")
+    print(f"done. best score: {best_score:.4f}")
 
 
 if __name__ == "__main__":
