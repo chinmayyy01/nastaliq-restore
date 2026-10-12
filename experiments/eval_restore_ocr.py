@@ -18,8 +18,10 @@ import json
 import os
 import sys
 
+import cv2
 import numpy as np
 import torch
+from skimage.filters import threshold_sauvola
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,6 +34,33 @@ from models.flow_restoration import FlowRestoration, sample as flow_sample  # no
 from restoration_data import _load_gray  # noqa: E402
 from structure_prior import structure_channels  # noqa: E402
 from train_baseline import character_error_rate  # noqa: E402
+
+
+def classical_restore(method: str, damaged: np.ndarray, mask: np.ndarray) -> np.ndarray:
+    """Classical (non-learned) restoration baselines.
+
+    damaged/mask are float ``[H, W]`` in ``[0, 1]``; mask > 0.5 marks damage.
+    Returns a restored float image of the same shape.
+    """
+    dmg = (damaged * 255).astype(np.uint8)
+    m = ((mask > 0.5) * 255).astype(np.uint8)
+    if method == "telea":
+        out = cv2.inpaint(dmg, m, 3, cv2.INPAINT_TELEA)
+    elif method == "ns":
+        out = cv2.inpaint(dmg, m, 3, cv2.INPAINT_NS)
+    elif method == "fill":
+        out = dmg.copy()
+        out[m > 0] = 255
+    elif method == "median":
+        out = dmg.copy()
+        out[m > 0] = 255
+        out = cv2.medianBlur(out, 3)
+    elif method == "sauvola":
+        t = threshold_sauvola(damaged, window_size=15)
+        out = ((damaged > t) * 255).astype(np.uint8)
+    else:
+        raise ValueError(f"unknown classical method: {method}")
+    return out.astype(np.float32) / 255.0
 
 
 def infer_recognizer_config(state: dict) -> dict:
@@ -99,41 +128,52 @@ def main():
     recognizer.eval()
     print(f"recognizer config: {rec_cfg}  (checkpoint CER {rec_ckpt.get('cer', float('nan')):.4f})")
 
-    res_ckpt = torch.load(args.restoration_checkpoint, map_location="cpu")
-    res_args = res_ckpt.get("args", {})
-    is_flow = bool(res_ckpt.get("flow", False) or res_args.get("flow", False))
-    if is_flow:
-        base = res_args.get("base", 32)
-        restoration = FlowRestoration(base=base, emb_dim=res_args.get("emb_dim", 128)).to(device)
-        restoration.load_state_dict(res_ckpt["model"])
-        restoration.eval()
+    classical_method = None
+    predictor = None
+    if args.restoration_checkpoint.startswith("classical:"):
+        classical_method = args.restoration_checkpoint.split(":", 1)[1]
+        is_flow = False
         structure_source = "none"
         use_structure = False
-        print(f"restoration: FLOW  base={base}  epoch={res_ckpt.get('epoch')}  "
-              f"PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
+        restoration = None
+        print(f"restoration: CLASSICAL '{classical_method}'")
     else:
-        base = res_args.get("base", 32)
-        # New checkpoints store structure_source; old ones stored a bool flag.
-        structure_source = res_args.get("structure_source",
-                                        "damaged" if res_args.get("use_structure") else "none")
-        use_structure = structure_source != "none"
-        restoration = RestorationUNet(in_channels=4 if use_structure else 2, base=base).to(device)
-        restoration.load_state_dict(res_ckpt["model"])
-        restoration.eval()
-        print(f"restoration: base={base}  structure={structure_source}  "
-              f"epoch={res_ckpt.get('epoch')}  PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
+        res_ckpt = torch.load(args.restoration_checkpoint, map_location="cpu")
+        res_args = res_ckpt.get("args", {})
+        is_flow = bool(res_ckpt.get("flow", False) or res_args.get("flow", False))
+        if is_flow:
+            base = res_args.get("base", 32)
+            restoration = FlowRestoration(base=base, emb_dim=res_args.get("emb_dim", 128)).to(device)
+            restoration.load_state_dict(res_ckpt["model"])
+            restoration.eval()
+            structure_source = "none"
+            use_structure = False
+            print(f"restoration: FLOW  base={base}  epoch={res_ckpt.get('epoch')}  "
+                  f"PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
+        else:
+            base = res_args.get("base", 32)
+            # New checkpoints store structure_source; old ones stored a bool flag.
+            structure_source = res_args.get("structure_source",
+                                            "damaged" if res_args.get("use_structure") else "none")
+            use_structure = structure_source != "none"
+            restoration = RestorationUNet(in_channels=4 if use_structure else 2, base=base).to(device)
+            restoration.load_state_dict(res_ckpt["model"])
+            restoration.eval()
+            print(f"restoration: base={base}  structure={structure_source}  "
+                  f"epoch={res_ckpt.get('epoch')}  PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
 
-    predictor = None
-    if structure_source == "predicted":
-        from models.structure_completion import StructureCompletion
-        pckpt = torch.load(res_args.get("structure_checkpoint",
-                                       os.path.join(_REPO_ROOT, "checkpoints",
-                                                    "structure_completion.pt")),
-                           map_location="cpu")
-        predictor = StructureCompletion(base=pckpt.get("args", {}).get("base", 32)).to(device)
-        predictor.load_state_dict(pckpt["model"])
-        predictor.eval()
-        print(f"structure predictor: skelIoU {pckpt.get('iou', float('nan')):.4f}")
+    if not classical_method:
+        predictor = None
+        if structure_source == "predicted":
+            from models.structure_completion import StructureCompletion
+            pckpt = torch.load(res_args.get("structure_checkpoint",
+                                           os.path.join(_REPO_ROOT, "checkpoints",
+                                                        "structure_completion.pt")),
+                               map_location="cpu")
+            predictor = StructureCompletion(base=pckpt.get("args", {}).get("base", 32)).to(device)
+            predictor.load_state_dict(pckpt["model"])
+            predictor.eval()
+            print(f"structure predictor: skelIoU {pckpt.get('iou', float('nan')):.4f}")
 
     refs, damaged_preds, restored_preds, clean_preds = [], [], [], []
     damage_fracs = []
@@ -146,29 +186,33 @@ def main():
         damaged, mask, clean = damaged[:, :w], mask[:, :w], clean[:, :w]
         damage_fracs.append(float((mask > 0.5).mean()))
 
-        # Pad to a multiple of 8 (white for images, zero for the mask) as the
-        # training collate did, then crop the restoration back to the real width.
-        target_w = ((w + 7) // 8) * 8
-        pad = lambda a, v: np.pad(a, ((0, 0), (0, target_w - a.shape[1])),
-                                  constant_values=v)
-        d_t = torch.from_numpy(pad(damaged, 1.0)).unsqueeze(0).unsqueeze(0).to(device)
-        m_t = torch.from_numpy(pad(mask, 0.0)).unsqueeze(0).unsqueeze(0).to(device)
-        with torch.no_grad():
-            if is_flow:
-                restored = flow_sample(restoration, d_t, m_t, steps=args.flow_steps,
-                                       seed=0)[0, :, :, :w].cpu()
-            else:
-                channels = [d_t, m_t]
-                if use_structure:
-                    if structure_source == "predicted":
-                        st = predictor(torch.cat([d_t, m_t], dim=1))
-                    elif structure_source == "clean":
-                        st = torch.from_numpy(structure_channels(pad(clean, 1.0))).unsqueeze(0).to(device)
-                    else:  # "damaged"
-                        st = torch.from_numpy(structure_channels(pad(damaged, 1.0))).unsqueeze(0).to(device)
-                    channels.append(st)
-                restored = restoration(torch.cat(channels, dim=1))[0, :, :, :w].cpu()
-        restored_np = restored[0].numpy()
+        if classical_method:
+            restored_np = classical_restore(classical_method, damaged, mask)
+        else:
+            # Pad to a multiple of 8 (white for images, zero for the mask) as the
+            # training collate did, then crop the restoration back to the real width.
+            target_w = ((w + 7) // 8) * 8
+            pad = lambda a, v: np.pad(a, ((0, 0), (0, target_w - a.shape[1])),
+                                      constant_values=v)
+            d_t = torch.from_numpy(pad(damaged, 1.0)).unsqueeze(0).unsqueeze(0).to(device)
+            m_t = torch.from_numpy(pad(mask, 0.0)).unsqueeze(0).unsqueeze(0).to(device)
+            with torch.no_grad():
+                if is_flow:
+                    restored = flow_sample(restoration, d_t, m_t, steps=args.flow_steps,
+                                           seed=0)[0, :, :, :w].cpu()
+                else:
+                    channels = [d_t, m_t]
+                    if use_structure:
+                        if structure_source == "predicted":
+                            st = predictor(torch.cat([d_t, m_t], dim=1))
+                        elif structure_source == "clean":
+                            st = torch.from_numpy(structure_channels(pad(clean, 1.0))).unsqueeze(0).to(device)
+                        else:  # "damaged"
+                            st = torch.from_numpy(structure_channels(pad(damaged, 1.0))).unsqueeze(0).to(device)
+                        channels.append(st)
+                    restored = restoration(torch.cat(channels, dim=1))[0, :, :, :w].cpu()
+            restored_np = restored[0].numpy()
+        restored = torch.from_numpy(restored_np).unsqueeze(0)
 
         widths = [w]
         damaged_preds.extend(decode_batch(recognizer, [torch.from_numpy(damaged).unsqueeze(0)],
@@ -203,9 +247,10 @@ def main():
         "restoration_psnr": float(np.mean(psnr_vals)),
         "restoration_ssim": float(np.mean(ssim_vals)),
         "damage_buckets": buckets,
-        "samples": [
-            {"ref": r, "damaged": d, "restored": s, "clean": c}
-            for r, d, s, c in zip(refs[:20], damaged_preds[:20], restored_preds[:20], clean_preds[:20])
+        "per_sample": [
+            {"ref": r, "damaged": d, "restored": s, "clean": c, "dmg": f}
+            for r, d, s, c, f in zip(refs, damaged_preds, restored_preds,
+                                     clean_preds, damage_fracs)
         ],
     }
     print(f"\nval CER  damaged : {result['cer_damaged']:.4f}")
