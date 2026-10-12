@@ -131,3 +131,94 @@ def main(task: str = "smoke", epochs: int = 20, extra: str = ""):
         raise SystemExit(f"unknown task '{task}'; pass --extra '...'")
     runner = run_remote_a100 if task in HEAVY_TASKS else run_remote
     runner.remote(args)
+
+
+# ---------------------------------------------------------------------------
+# Sweep: multi-seed error bars + lambda_ocr tuning (runs in parallel on Modal)
+# ---------------------------------------------------------------------------
+
+SWEEP_SEEDS = [0, 1, 2]
+SWEEP_LAMBDAS = ["0.03", "0.3", "1.0"]  # 0.1 is covered by the seed grid
+SWEEP_EPOCHS = 20
+
+
+def _stub(name):
+    return f"/root/repo/checkpoints/{name}"
+
+
+def _train_eval(train_args, ckpt, eval_extra=None):
+    return {
+        "train": train_args,
+        "eval": (["experiments/eval_restore_ocr.py", "--device", "cuda",
+                  "--restoration-checkpoint", ckpt] + (eval_extra or []) +
+                 ["--out", ckpt[:-3] + "_eval.json"]),
+    }
+
+
+def _sweep_jobs():
+    jobs = []
+    for s in SWEEP_SEEDS:
+        # U-Net baseline
+        ck = _stub(f"sw_baseline_s{s}.pt")
+        jobs.append(_train_eval(
+            ["src/train_restoration.py", "--device", "cuda", "--epochs", str(SWEEP_EPOCHS),
+             "--seed", str(s), "--num-workers", "4", "--checkpoint", ck,
+             "--history-out", ck[:-3] + "_hist.json"], ck))
+        # U-Net + RITL (lambda 0.1)
+        ck = _stub(f"sw_ritl_s{s}.pt")
+        jobs.append(_train_eval(
+            ["src/train_restoration.py", "--device", "cuda", "--epochs", str(SWEEP_EPOCHS),
+             "--seed", str(s), "--num-workers", "4", "--lambda-ocr", "0.1", "--checkpoint", ck,
+             "--history-out", ck[:-3] + "_hist.json"], ck))
+        # flow
+        ck = _stub(f"sw_flow_s{s}.pt")
+        jobs.append(_train_eval(
+            ["src/train_flow.py", "--device", "cuda", "--epochs", str(SWEEP_EPOCHS),
+             "--seed", str(s), "--num-workers", "4", "--checkpoint", ck,
+             "--history-out", ck[:-3] + "_hist.json"], ck, ["--flow-steps", "12"]))
+        # flow + RITL (lambda 0.1)
+        ck = _stub(f"sw_flowritl_s{s}.pt")
+        jobs.append(_train_eval(
+            ["src/train_flow.py", "--device", "cuda", "--epochs", str(SWEEP_EPOCHS),
+             "--seed", str(s), "--num-workers", "4", "--lambda-ocr", "0.1", "--checkpoint", ck,
+             "--history-out", ck[:-3] + "_hist.json"], ck, ["--flow-steps", "12"]))
+    # lambda_ocr sweep at seed 0
+    for lam in SWEEP_LAMBDAS:
+        tag = lam.replace(".", "p")
+        ck = _stub(f"sw_ritl_l{tag}_s0.pt")
+        jobs.append(_train_eval(
+            ["src/train_restoration.py", "--device", "cuda", "--epochs", str(SWEEP_EPOCHS),
+             "--seed", "0", "--num-workers", "4", "--lambda-ocr", lam, "--checkpoint", ck,
+             "--history-out", ck[:-3] + "_hist.json"], ck))
+    return jobs
+
+
+@app.function(
+    image=image,
+    gpu=GPU,
+    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol},
+    timeout=60 * 60 * 3,
+)
+def train_and_eval(train_args: list, eval_args: list):
+    import os
+    import subprocess
+    import sys
+
+    env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+    print("TRAIN:", " ".join(train_args), flush=True)
+    subprocess.run([sys.executable, *train_args], cwd="/root/repo", check=True, env=env)
+    print("EVAL:", " ".join(eval_args), flush=True)
+    subprocess.run([sys.executable, *eval_args], cwd="/root/repo", check=True, env=env)
+    data_vol.commit()
+    ckpt_vol.commit()
+    return eval_args[eval_args.index("--out") + 1]
+
+
+@app.local_entrypoint()
+def sweep():
+    jobs = _sweep_jobs()
+    print(f"launching {len(jobs)} train+eval jobs on {GPU}...", flush=True)
+    outs = list(train_and_eval.starmap([(j["train"], j["eval"]) for j in jobs]))
+    print(f"completed {len(outs)} jobs:")
+    for o in outs:
+        print("  ", o)
