@@ -76,6 +76,13 @@ PRESETS = {
         "--checkpoint", "/root/repo/checkpoints/restoration_flow_ocr.pt",
         "--history-out", "/root/repo/checkpoints/restoration_flow_ocr_history.json",
     ],
+    # iterative restoration with recognition-in-the-loop at every stage
+    "iterative": [
+        "src/train_iterative.py", "--device", "cuda", "--epochs", "20",
+        "--stages", "2", "--lambda-ocr", "0.1", "--num-workers", "4",
+        "--checkpoint", "/root/repo/checkpoints/restoration_iterative.pt",
+        "--history-out", "/root/repo/checkpoints/restoration_iterative_history.json",
+    ],
 }
 
 # Heavier jobs (backprop through a sampling loop) go on an A100.
@@ -124,7 +131,7 @@ def main(task: str = "smoke", epochs: int = 20, extra: str = ""):
         args = extra.split()
     else:
         args = list(PRESETS.get(task, []))
-        if task in ("restoration", "flow", "flow-ocr"):
+        if task in ("restoration", "flow", "flow-ocr", "iterative"):
             # replace the hard-coded epoch count with --epochs
             args = [str(epochs) if a == "20" else a for a in args]
     if not args:

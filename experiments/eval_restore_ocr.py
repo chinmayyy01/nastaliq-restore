@@ -130,6 +130,8 @@ def main():
 
     classical_method = None
     predictor = None
+    is_iterative = False
+    iterative_stages = 1
     if args.restoration_checkpoint.startswith("classical:"):
         classical_method = args.restoration_checkpoint.split(":", 1)[1]
         is_flow = False
@@ -141,6 +143,7 @@ def main():
         res_ckpt = torch.load(args.restoration_checkpoint, map_location="cpu")
         res_args = res_ckpt.get("args", {})
         is_flow = bool(res_ckpt.get("flow", False) or res_args.get("flow", False))
+        is_iterative = bool(res_ckpt.get("iterative", False) or res_args.get("iterative", False))
         if is_flow:
             base = res_args.get("base", 32)
             restoration = FlowRestoration(base=base, emb_dim=res_args.get("emb_dim", 128)).to(device)
@@ -150,6 +153,16 @@ def main():
             use_structure = False
             print(f"restoration: FLOW  base={base}  epoch={res_ckpt.get('epoch')}  "
                   f"PSNR={res_ckpt.get('psnr', float('nan')):.2f}")
+        elif is_iterative:
+            base = res_args.get("base", 32)
+            iterative_stages = res_ckpt.get("stages", res_args.get("stages", 2))
+            restoration = RestorationUNet(in_channels=3, base=base).to(device)
+            restoration.load_state_dict(res_ckpt["model"])
+            restoration.eval()
+            structure_source = "none"
+            use_structure = False
+            print(f"restoration: ITERATIVE stages={iterative_stages} base={base}  "
+                  f"epoch={res_ckpt.get('epoch')}  CER={res_ckpt.get('cer', float('nan')):.4f}")
         else:
             base = res_args.get("base", 32)
             # New checkpoints store structure_source; old ones stored a bool flag.
@@ -200,6 +213,11 @@ def main():
                 if is_flow:
                     restored = flow_sample(restoration, d_t, m_t, steps=args.flow_steps,
                                            seed=0)[0, :, :, :w].cpu()
+                elif is_iterative:
+                    est = d_t
+                    for _ in range(iterative_stages):
+                        est = restoration(torch.cat([d_t, m_t, est], dim=1))
+                    restored = est[0, :, :, :w].cpu()
                 else:
                     channels = [d_t, m_t]
                     if use_structure:
