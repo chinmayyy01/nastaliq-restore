@@ -97,6 +97,10 @@ def main():
     parser.add_argument("--recognizer-checkpoint", default=os.path.join(
         _REPO_ROOT, "checkpoints", "baseline_best.pt"))
     parser.add_argument("--data-dir", default=os.path.join(_REPO_ROOT, "data"))
+    parser.add_argument("--vocab-from", default=None,
+                        help="Dir whose manifests define the recogniser vocab "
+                             "(default: same as --data-dir). Use the training "
+                             "data dir when evaluating on a different domain.")
     parser.add_argument("--img-height", type=int, default=64)
     parser.add_argument("--flow-steps", type=int, default=20,
                         help="Euler steps for flow-matching checkpoints")
@@ -116,7 +120,10 @@ def main():
     val_manifest = load_manifest(os.path.join(args.data_dir, "manifest_val.json"))
     # Build the vocab from the *full* manifests -- truncating first would drop
     # rare characters and desync the class indices from the checkpoint.
-    vocab = build_vocab(train_manifest + val_manifest)
+    vocab_dir = args.vocab_from or args.data_dir
+    vocab_train = load_manifest(os.path.join(vocab_dir, "manifest_train.json"))
+    vocab_val = load_manifest(os.path.join(vocab_dir, "manifest_val.json"))
+    vocab = build_vocab(vocab_train + vocab_val)
     idx_to_char = {i: c for c, i in vocab.items() if c != "<blank>"}
     if args.limit:
         val_manifest = val_manifest[:args.limit]

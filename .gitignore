@@ -221,6 +221,7 @@ venv/
 __pycache__/
 *.pyc
 data/
+data_real/
 checkpoints/
 .DS_Store
 .ipynb_checkpoints/

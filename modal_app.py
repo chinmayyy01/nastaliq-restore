@@ -50,6 +50,20 @@ image = (
 
 data_vol = modal.Volume.from_name("nastaliq-data", create_if_missing=True)
 ckpt_vol = modal.Volume.from_name("nastaliq-checkpoints", create_if_missing=True)
+real_vol = modal.Volume.from_name("nastaliq-data-real", create_if_missing=True)
+
+REAL_TAR = "/root/real_tar/data_real.tar"
+
+
+def _ensure_real_data():
+    """Extract the real dataset tarball into the container's repo (once)."""
+    import os
+    import subprocess
+
+    if not os.path.exists("/root/repo/data_real/manifest_train.json"):
+        print("extracting real dataset...", flush=True)
+        subprocess.run(["tar", "--warning=no-unknown-keyword",
+                        "-xf", REAL_TAR, "-C", "/root/repo"], check=True)
 
 PRESETS = {
     "smoke": [
@@ -83,6 +97,26 @@ PRESETS = {
         "--checkpoint", "/root/repo/checkpoints/restoration_iterative.pt",
         "--history-out", "/root/repo/checkpoints/restoration_iterative_history.json",
     ],
+    # --- real-data (UTRSet-Real) experiment ---
+    "real-recognizer": [
+        "src/train_baseline.py", "--device", "cuda", "--epochs", "30",
+        "--augment", "--num-workers", "4", "--data-dir", "/root/repo/data_real",
+        "--checkpoint", "/root/repo/checkpoints/real_baseline_best.pt",
+        "--history-out", "/root/repo/checkpoints/real_baseline_history.json",
+    ],
+    "real-restoration": [
+        "src/train_restoration.py", "--device", "cuda", "--epochs", "20",
+        "--num-workers", "4", "--data-dir", "/root/repo/data_real",
+        "--checkpoint", "/root/repo/checkpoints/real_restoration.pt",
+        "--history-out", "/root/repo/checkpoints/real_restoration_history.json",
+    ],
+    "real-ritl": [
+        "src/train_restoration.py", "--device", "cuda", "--epochs", "20",
+        "--num-workers", "4", "--lambda-ocr", "0.1", "--data-dir", "/root/repo/data_real",
+        "--ocr-checkpoint", "/root/repo/checkpoints/real_baseline_best.pt",
+        "--checkpoint", "/root/repo/checkpoints/real_ritl.pt",
+        "--history-out", "/root/repo/checkpoints/real_ritl_history.json",
+    ],
 }
 
 # Heavier jobs (backprop through a sampling loop) go on an A100.
@@ -92,7 +126,8 @@ HEAVY_TASKS = {"flow-ocr"}
 @app.function(
     image=image,
     gpu=GPU,
-    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol},
+    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol,
+             "/root/real_tar": real_vol},
     timeout=60 * 60 * 4,
 )
 def run_remote(args: list):
@@ -100,6 +135,7 @@ def run_remote(args: list):
     import subprocess
     import sys
 
+    _ensure_real_data()
     print("RUN:", " ".join(args), flush=True)
     subprocess.run([sys.executable, *args], cwd="/root/repo", check=True,
                    env={**os.environ, "PYTHONUNBUFFERED": "1"})
@@ -110,7 +146,8 @@ def run_remote(args: list):
 @app.function(
     image=image,
     gpu="A100-40GB",
-    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol},
+    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol,
+             "/root/real_tar": real_vol},
     timeout=60 * 60 * 4,
 )
 def run_remote_a100(args: list):
@@ -118,6 +155,7 @@ def run_remote_a100(args: list):
     import subprocess
     import sys
 
+    _ensure_real_data()
     print("RUN (A100):", " ".join(args), flush=True)
     subprocess.run([sys.executable, *args], cwd="/root/repo", check=True,
                    env={**os.environ, "PYTHONUNBUFFERED": "1"})
@@ -203,7 +241,8 @@ def _sweep_jobs():
 @app.function(
     image=image,
     gpu=GPU,
-    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol},
+    volumes={"/root/repo/data": data_vol, "/root/repo/checkpoints": ckpt_vol,
+             "/root/real_tar": real_vol},
     timeout=60 * 60 * 3,
 )
 def train_and_eval(train_args: list, eval_args: list):
